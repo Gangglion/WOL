@@ -45,19 +45,23 @@ class TurnOnViewModel : ViewModel() {
     fun powerOn() {
         viewModelScope.launch {
             if(_uiState.value.macAddr.isNotEmpty() && _uiState.value.ddns.isNotEmpty()) {
-                async {
-                    WakeOnLan.sendMagicPacket(
-                        macAddr = _uiState.value.macAddr,
-                        ddns = _uiState.value.ddns
-                    )
-                }.await()
+                if(!_uiState.value.isPowerOn) {
+                    async {
+                        WakeOnLan.sendMagicPacket(
+                            macAddr = _uiState.value.macAddr,
+                            ddns = _uiState.value.ddns
+                        )
+                    }.await()
 
-                // 전송 완료 이후
-                _uiState.update {
-                    it.copy(
-                        isPowerOn = true,
-                        userMsg = "${_uiState.value.alias} 에 매직패킷을 전송하였습니다."
-                    )
+                    // 전송 완료 이후
+                    _uiState.update {
+                        it.copy(
+                            isPowerOn = true,
+                            userMsg = "${_uiState.value.alias} 에 매직패킷을 전송하였습니다."
+                        )
+                    }
+                } else {
+                    showSnackbarMsg("이미 전송했습니다.")
                 }
             } else {
                 showSnackbarMsg("MAC 주소와 DDNS를 다시 확인해주세요.")
