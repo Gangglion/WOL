@@ -27,6 +27,7 @@ android {
 
         buildConfigField("String", "DDNS", localProperties.getProperty("ddns"))
         buildConfigField("String", "DEFAULT_MAC", localProperties.getProperty("defaultMac"))
+        buildConfigField("String", "DDNS_OUT", localProperties.getProperty("ddnsOut"))
     }
 
     buildTypes {

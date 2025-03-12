@@ -24,7 +24,7 @@ object WakeOnLan {
                 val macBytes = macAddr.split(":").map { it.toInt(16).toByte() }.toByteArray()
                 val magicPacket = ByteArray(102) { 0xFF.toByte() }
 
-                for(item in 6 until macBytes.size step macBytes.size) {
+                for(item in 6 until magicPacket.size step macBytes.size) {
                     System.arraycopy(macBytes, 0, magicPacket, item, macBytes.size)
                 }
 
@@ -37,6 +37,8 @@ object WakeOnLan {
                 DatagramSocket().use { sock ->
                     sock.send(packet)
                 }
+
+                LogUtil.d("Magic Packet sent to $macAddr via $ip:$port")
             } catch(e: Exception) {
                 LogUtil.e("sendMagicPacket has Error", e)
             }
