@@ -2,9 +2,6 @@ package com.glion.wol.ui.screen
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.glion.wol.BuildConfig
-import com.glion.wol.util.WakeOnLan
-import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
@@ -33,26 +30,19 @@ class TurnOnViewModel : ViewModel() {
     val uiState : StateFlow<TurnOnUiState> = _uiState
 
     fun setDefaultDevice() {
-        _uiState.update {
-            it.copy(
-                alias = "Desktop",
-                macAddr = BuildConfig.DEFAULT_MAC,
-                ddns = BuildConfig.DDNS
-            )
-        }
+//        _uiState.update {
+//            it.copy(
+//                alias = "Desktop",
+//                macAddr = BuildConfig.DEFAULT_MAC,
+//                ddns = BuildConfig.DDNS
+//            )
+//        }
     }
 
     fun powerOn() {
         viewModelScope.launch {
             if(_uiState.value.macAddr.isNotEmpty() && _uiState.value.ddns.isNotEmpty()) {
                 if(!_uiState.value.isPowerOn) {
-                    async {
-                        WakeOnLan.sendMagicPacket(
-                            macAddr = _uiState.value.macAddr,
-                            ddns = _uiState.value.ddns
-                        )
-                    }.await()
-
                     // 전송 완료 이후
                     _uiState.update {
                         it.copy(
