@@ -4,24 +4,21 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.DrawerValue
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
-import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
-import com.glion.wol.ui.drawer.SettingDrawer
-import com.glion.wol.ui.appbar.TopAppBar
-import com.glion.wol.ui.screen.TurnOnScreen
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
+import com.glion.wol.ui.edit.EditScreen
+import com.glion.wol.ui.main.TurnOnScreen
+import com.glion.wol.ui.navigation.Edit
+import com.glion.wol.ui.navigation.Main
 import com.glion.wol.ui.theme.WOLTheme
-import kotlinx.coroutines.launch
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -36,33 +33,19 @@ class MainActivity : ComponentActivity() {
 fun MainScreen() {
     WOLTheme {
         val snackbarHostState = remember { SnackbarHostState() }
-        val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
-        val scope = rememberCoroutineScope()
-        SettingDrawer(
-            drawerState = drawerState
-        ) {
-            Scaffold(
-                modifier = Modifier.fillMaxSize(),
-                topBar = {
-                    TopAppBar(
-                        openDrawer = {
-                            scope.launch {
-                                drawerState.apply {
-                                    if(isClosed) open() else close()
-                                }
-                            }
-                        },
-                        drawerState = drawerState
-                    )
-                },
-                snackbarHost = {
-                    SnackbarHost(hostState = snackbarHostState)
-                }
-            ) { innerPadding ->
+        val navController = rememberNavController()
+
+        NavHost(navController, startDestination = Main) {
+            composable<Main> {
                 TurnOnScreen(
-                    modifier = Modifier.padding(innerPadding),
-                    sbHost = snackbarHostState
+                    sbHost = snackbarHostState,
+                    goSetting = {
+                        navController.navigate(route = Edit)
+                    }
                 )
+            }
+            composable<Edit> {
+                EditScreen()
             }
         }
     }

@@ -12,7 +12,7 @@ package com.glion.wol.domain.model
  */
 data class Device(
     val id: Long = 0,
-    val mac: String,
-    val alias: String,
-    val isPowerOn: Boolean
+    val mac: String = "",
+    val alias: String = "",
+    val isPowerOn: Boolean = false
 )

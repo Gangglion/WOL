@@ -1,4 +1,4 @@
-package com.glion.wol.data.di
+package com.glion.wol.di
 
 import android.content.Context
 import androidx.datastore.core.DataStore

@@ -1,4 +1,4 @@
-package com.glion.wol.data.di
+package com.glion.wol.di
 
 import android.content.Context
 import androidx.room.Database
@@ -39,7 +39,7 @@ object DbModule {
     @Singleton
     fun provideDbObject(
         @ApplicationContext applicationContext: Context
-    ) :WolDatabase {
+    ) : WolDatabase {
         return Room.databaseBuilder(
             applicationContext,
             WolDatabase::class.java, "wol-db"

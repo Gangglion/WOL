@@ -1,16 +1,23 @@
 package com.glion.wol.ui.edit
 
 import androidx.lifecycle.ViewModel
+import com.glion.wol.domain.usecase.GetAllDeviceUseCase
+import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
 
 /**
  * Project : WOL
  * File : EditScreenViewModel
- * Created by shhan on 2025-03-12
+ * Created by glion on 2025-03-12
  *
  * Description:
  * - 추후 기입
  *
- * Copyright @2025 UBIPLUS. All rights reserved
+ * Copyright @2025 Gangglion. All rights reserved
  */
-class EditScreenViewModel : ViewModel() {
+@HiltViewModel
+class EditScreenViewModel @Inject constructor(
+    private val getAllDeviceUseCase: GetAllDeviceUseCase
+) : ViewModel() {
+
 }

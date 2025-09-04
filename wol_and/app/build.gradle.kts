@@ -4,6 +4,7 @@ import java.util.Properties
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.jetbrains.kotlin.android)
+    id("org.jetbrains.kotlin.plugin.serialization") version "1.9.25"
     id("com.google.devtools.ksp")
     id("com.google.dagger.hilt.android")
     id("org.jetbrains.kotlin.plugin.compose")
@@ -71,13 +72,16 @@ dependencies {
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
+
+    implementation(libs.kotlinx.serialization.json)
     // coroutine
     implementation(libs.kotlinx.coroutines.android)
-
     // splash
     implementation(libs.androidx.core.splashscreen)
     // viewModel
     implementation(libs.androidx.lifecycle.viewmodel.compose)
+    // navgiation
+    implementation(libs.androidx.navigation.compose)
     // Room
     implementation(libs.androidx.room.runtime)
     implementation(libs.core.ktx)
@@ -85,10 +89,10 @@ dependencies {
     implementation(libs.androidx.room.ktx)
     // DataStore
     implementation(libs.androidx.datastore.preferences)
-
     // hilt
     implementation(libs.hilt.android)
     ksp(libs.hilt.android.compiler)
+    implementation(libs.androidx.hilt.navigation.compose)
 
     // test
     testImplementation(libs.junit)

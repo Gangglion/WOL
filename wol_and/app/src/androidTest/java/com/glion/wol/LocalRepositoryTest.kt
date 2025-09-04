@@ -9,12 +9,10 @@ import androidx.test.platform.app.InstrumentationRegistry
 import com.glion.wol.data.datastore.datasource.SettingDataSourceImpl
 import com.glion.wol.data.db.dao.DeviceDao
 import com.glion.wol.data.db.datasource.DbDataSourceImpl
-import com.glion.wol.data.di.WolDatabase
 import com.glion.wol.data.repository.LocalRepositoryImpl
+import com.glion.wol.di.WolDatabase
 import com.glion.wol.domain.model.Device
 import com.glion.wol.util.Result
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.TestScope
