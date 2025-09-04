@@ -4,6 +4,9 @@ import java.util.Properties
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.jetbrains.kotlin.android)
+    id("com.google.devtools.ksp")
+    id("com.google.dagger.hilt.android")
+    id("org.jetbrains.kotlin.plugin.compose")
 }
 
 val localProperties = Properties()
@@ -11,12 +14,12 @@ localProperties.load(FileInputStream(rootProject.file("local.properties")))
 
 android {
     namespace = "com.glion.wol"
-    compileSdk = 35
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "com.glion.wol"
         minSdk = 31
-        targetSdk = 34
+        targetSdk = 35
         versionCode = 1
         versionName = "1.0"
 
@@ -25,8 +28,7 @@ android {
             useSupportLibrary = true
         }
 
-        buildConfigField("String", "DDNS", localProperties.getProperty("ddns"))
-        buildConfigField("String", "DEFAULT_MAC", localProperties.getProperty("defaultMac"))
+        buildConfigField("String", "DDNS_IN", localProperties.getProperty("ddnsIn"))
         buildConfigField("String", "DDNS_OUT", localProperties.getProperty("ddnsOut"))
     }
 
@@ -61,7 +63,6 @@ android {
 }
 
 dependencies {
-
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
@@ -70,10 +71,25 @@ dependencies {
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
+    // coroutine
+    implementation(libs.kotlinx.coroutines.android)
+
     // splash
     implementation(libs.androidx.core.splashscreen)
     // viewModel
     implementation(libs.androidx.lifecycle.viewmodel.compose)
+    // Room
+    implementation(libs.androidx.room.runtime)
+    implementation(libs.core.ktx)
+    ksp(libs.androidx.room.compiler)
+    implementation(libs.androidx.room.ktx)
+    // DataStore
+    implementation(libs.androidx.datastore.preferences)
+
+    // hilt
+    implementation(libs.hilt.android)
+    ksp(libs.hilt.android.compiler)
+
     // test
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
