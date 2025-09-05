@@ -136,10 +136,11 @@ fun EditScreenContent(
         items(
             items = uiState.deviceList
         ) { device ->
+            // 수정중이거나 추가중이 아니며, 전원이 꺼져있는 기기만 삭제 가능
+            val canSwipe = uiState.editDevice == null && !device.isPowerOn && !uiState.isAddMode
             val dismissState = rememberSwipeToDismissBoxState(
                 confirmValueChange = {
-                    // TODO : 수정중인 Item 이 아닐때, 켜져있지 않을때 삭제 가능하도록
-                    if(it == SwipeToDismissBoxValue.StartToEnd) {
+                    if(it == SwipeToDismissBoxValue.StartToEnd && canSwipe) {
                         onRemoveItem(device)
                         true
                     } else {
@@ -149,6 +150,8 @@ fun EditScreenContent(
             )
             SwipeToDismissBox(
                 state = dismissState,
+                enableDismissFromStartToEnd = canSwipe,
+                enableDismissFromEndToStart = false, // 오른쪽에서 왼쪽 스와이프는 아예 차단
                 backgroundContent = {
                     val color by animateColorAsState(
                         targetValue = if (dismissState.targetValue == SwipeToDismissBoxValue.StartToEnd) MaterialTheme.colorScheme.error else Color.Transparent
