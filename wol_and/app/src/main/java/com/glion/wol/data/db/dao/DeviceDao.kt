@@ -21,9 +21,6 @@ interface DeviceDao {
     @Query("SELECT * FROM device")
     fun getAllDevice(): List<DeviceEntity>
 
-    @Query("SELECT * FROM device WHERE id LIKE :id")
-    fun findTargetDevice(id: Long): DeviceEntity
-
     @Query("UPDATE device SET mac_addr = :newMacAddr WHERE id LIKE :id")
     fun changeMacAddr(id: Long, newMacAddr: String)
 

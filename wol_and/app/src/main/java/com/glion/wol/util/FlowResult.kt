@@ -10,10 +10,10 @@ package com.glion.wol.util
  *
  * Copyright @2025 Gangglion. All rights reserved
  */
-sealed interface Result<out T> {
-    data class Success<T>(val data: T) : Result<T>
-    data class Error(val errorCode: String, val errorMsg: String) : Result<Nothing>
-    data object Loading: Result<Nothing>
+sealed interface FlowResult<out T> {
+    data class Success<T>(val data: T) : FlowResult<T>
+    data class Error(val errorCode: String, val errorMsg: String) : FlowResult<Nothing>
+    data object Loading: FlowResult<Nothing>
 }
 
 // T 를 붙여 공변성 보장

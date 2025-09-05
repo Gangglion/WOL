@@ -21,10 +21,6 @@ class DbDataSourceImpl @Inject constructor(
         return dao.getAllDevice()
     }
 
-    override suspend fun findTargetDevice(id: Long): DeviceEntity {
-        return dao.findTargetDevice(id)
-    }
-
     override suspend fun changeMacAddr(id: Long, newMacAddr: String) {
         dao.changeMacAddr(id, newMacAddr)
     }

@@ -1,7 +1,7 @@
 package com.glion.wol.domain.repository
 
 import com.glion.wol.domain.model.Device
-import com.glion.wol.util.Result
+import com.glion.wol.util.FlowResult
 import kotlinx.coroutines.flow.Flow
 
 /**
@@ -15,21 +15,19 @@ import kotlinx.coroutines.flow.Flow
  * Copyright @2025 Gangglion. All rights reserved
  */
 interface LocalRepository {
-    suspend fun getAllDevice() : Flow<Result<List<Device>>>
+    suspend fun getAllDevice() : Flow<FlowResult<List<Device>>>
 
-    suspend fun findTargetDevice(id: Long) : Flow<Result<Device>>
+    suspend fun changeMacAddr(id: Long, newMacAddr: String) : Flow<FlowResult<Boolean>>
 
-    suspend fun changeMacAddr(id: Long, newMacAddr: String) : Flow<Result<Boolean>>
+    suspend fun changeAlias(id: Long, newAlias: String) : Flow<FlowResult<Boolean>>
 
-    suspend fun changeAlias(id: Long, newAlias: String) : Flow<Result<Boolean>>
+    suspend fun changePowerStatus(macAddr: String, status: Boolean) : Flow<FlowResult<Boolean>>
 
-    suspend fun changePowerStatus(macAddr: String, status: Boolean) : Flow<Result<Boolean>>
+    suspend fun insertDevice(vararg devices: Device) : Flow<FlowResult<Boolean>>
 
-    suspend fun insertDevice(vararg devices: Device) : Flow<Result<Boolean>>
+    suspend fun deleteDevice(device: Device) : Flow<FlowResult<Boolean>>
 
-    suspend fun deleteDevice(device: Device) : Flow<Result<Boolean>>
+    val selectedIndex: Flow<FlowResult<Long>>
 
-    val selectedIndex: Flow<Result<Long>>
-
-    suspend fun editSelectedIndex(idx: Long): Flow<Result<Boolean>>
+    suspend fun editSelectedIndex(idx: Long): Flow<FlowResult<Boolean>>
 }

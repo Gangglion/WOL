@@ -15,8 +15,6 @@ import com.glion.wol.data.db.entity.DeviceEntity
 interface DbDataSource {
     suspend fun getAllDevice(): List<DeviceEntity>
 
-    suspend fun findTargetDevice(id: Long): DeviceEntity
-
     suspend fun changeMacAddr(id: Long, newMacAddr: String)
 
     suspend fun changeAlias(id: Long, newAlias: String)

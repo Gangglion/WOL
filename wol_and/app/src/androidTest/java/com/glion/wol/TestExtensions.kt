@@ -1,6 +1,6 @@
 package com.glion.wol
 
-import com.glion.wol.util.Result
+import com.glion.wol.util.FlowResult
 /**
  * Project : WOL
  * File : TestExtensions
@@ -11,8 +11,8 @@ import com.glion.wol.util.Result
  *
  * Copyright @2025 Glion. All rights reserved
  */
-fun <T> Result<T>.getOrThrow(): T = when(this) {
-    is Result.Success -> data
-    is Result.Error -> throw Exception("Result Error : ${this.errorMsg}")
-    is Result.Loading -> throw Exception("Result is Loading")
+fun <T> FlowResult<T>.getOrThrow(): T = when(this) {
+    is FlowResult.Success -> data
+    is FlowResult.Error -> throw Exception("Result Error : ${this.errorMsg}")
+    is FlowResult.Loading -> throw Exception("Result is Loading")
 }

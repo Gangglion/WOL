@@ -9,7 +9,6 @@ import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberDrawerState
@@ -75,7 +74,6 @@ fun TurnOnScreen(
             topBar = {
                 TopAppBar(
                     openDrawer = {
-                        viewModel.getAllDevice()
                         scope.launch {
                             drawerState.apply {
                                 if(isClosed) open() else close()
@@ -84,22 +82,17 @@ fun TurnOnScreen(
                     },
                     drawerState = drawerState
                 )
-            },
-            snackbarHost = {
-                SnackbarHost(hostState = sbHost)
             }
         ) { innerPadding ->
             TurnOnScreenContent(
                 modifier = Modifier.padding(innerPadding),
                 uiState = uiState,
-                clickPowerOn = {
-                    if(!uiState.selectedDevice!!.isPowerOn) {
-                        viewModel.showSnackbarMsg("이미 전원이 켜져 있습니다.")
-                    } else {
-                        viewModel.powerOn()
-                    }
-                }
+                clickPowerOn = { viewModel.powerOn() }
             )
+        }
+
+        LaunchedEffect(Unit) {
+            viewModel.getAllDeviceAndSelectedDevice()
         }
     }
 
