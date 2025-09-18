@@ -44,7 +44,9 @@ class EditScreenViewModel @Inject constructor(
         _uiState.update {
             it.copy(
                 isAddMode = status,
-                editDevice = editDevice
+                editDevice = editDevice,
+                inputAlias = "",
+                inputMac = ""
             )
         }
     }
