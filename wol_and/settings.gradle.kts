@@ -24,4 +24,4 @@ dependencyResolutionManagement {
 
 rootProject.name = "WOL"
 include(":app")
- 
+include(":crypto-module")
