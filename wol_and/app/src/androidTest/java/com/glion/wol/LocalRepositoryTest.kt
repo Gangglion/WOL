@@ -11,7 +11,7 @@ import com.glion.wol.data.db.dao.DeviceDao
 import com.glion.wol.data.db.datasource.DbDataSourceImpl
 import com.glion.wol.data.repository.LocalRepositoryImpl
 import com.glion.wol.di.WolDatabase
-import com.glion.wol.domain.model.Device
+import com.glion.wol.domain.model.local.Device
 import com.glion.wol.util.FlowResult
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.first

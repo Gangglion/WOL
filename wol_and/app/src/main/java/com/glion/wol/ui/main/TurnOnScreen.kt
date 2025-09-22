@@ -28,7 +28,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.glion.wol.R
-import com.glion.wol.domain.model.Device
+import com.glion.wol.domain.model.local.Device
 import com.glion.wol.ui.appbar.TopAppBar
 import kotlinx.coroutines.launch
 

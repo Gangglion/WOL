@@ -1,7 +1,7 @@
 package com.glion.wol.data.mapper
 
 import com.glion.wol.data.db.entity.DeviceEntity
-import com.glion.wol.domain.model.Device
+import com.glion.wol.domain.model.local.Device
 
 /**
  * Project : WOL

@@ -29,7 +29,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.glion.wol.R
-import com.glion.wol.domain.model.Device
+import com.glion.wol.domain.model.local.Device
 
 /**
  * Project : WOL

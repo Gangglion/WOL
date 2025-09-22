@@ -2,7 +2,7 @@ package com.glion.wol.ui.main
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.glion.wol.domain.model.Device
+import com.glion.wol.domain.model.local.Device
 import com.glion.wol.domain.usecase.ChangePowerStatusUseCase
 import com.glion.wol.domain.usecase.GetAllDeviceUseCase
 import com.glion.wol.domain.usecase.GetSelectedIndexUseCase

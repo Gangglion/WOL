@@ -1,6 +1,6 @@
 package com.glion.wol.ui.main
 
-import com.glion.wol.domain.model.Device
+import com.glion.wol.domain.model.local.Device
 
 /**
  * Project : WOL

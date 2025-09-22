@@ -1,6 +1,6 @@
 package com.glion.wol.domain.repository
 
-import com.glion.wol.domain.model.Device
+import com.glion.wol.domain.model.local.Device
 import com.glion.wol.util.FlowResult
 import kotlinx.coroutines.flow.Flow
 

@@ -4,7 +4,7 @@ import com.glion.wol.data.datastore.datasource.SettingDataSource
 import com.glion.wol.data.db.datasource.DbDataSource
 import com.glion.wol.data.mapper.toEntity
 import com.glion.wol.data.mapper.toModel
-import com.glion.wol.domain.model.Device
+import com.glion.wol.domain.model.local.Device
 import com.glion.wol.domain.repository.LocalRepository
 import com.glion.wol.util.FlowResult
 import kotlinx.coroutines.Dispatchers

@@ -21,6 +21,7 @@ import com.glion.wol.ui.edit.EditScreen
 import com.glion.wol.ui.main.TurnOnScreen
 import com.glion.wol.ui.navigation.Edit
 import com.glion.wol.ui.navigation.Main
+import com.glion.wol.ui.navigation.Splash
 import com.glion.wol.ui.theme.WOLTheme
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -47,6 +48,9 @@ fun MainScreen() {
             modifier = Modifier.windowInsetsPadding(WindowInsets.ime)
         ) { _ ->
             NavHost(navController, startDestination = Main){
+                composable<Splash> {
+
+                }
                 composable<Main> {
                     TurnOnScreen(
                         sbHost = snackbarHostState,

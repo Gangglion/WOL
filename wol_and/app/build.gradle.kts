@@ -29,6 +29,7 @@ android {
             useSupportLibrary = true
         }
 
+        buildConfigField("String", "APP_KEY", localProperties.getProperty("appKey"))
         buildConfigField("String", "DDNS_IN", localProperties.getProperty("ddnsIn"))
         buildConfigField("String", "DDNS_OUT", localProperties.getProperty("ddnsOut"))
     }
@@ -64,6 +65,7 @@ android {
 }
 
 dependencies {
+    implementation(project(":crypto-module"))
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
@@ -89,6 +91,13 @@ dependencies {
     implementation(libs.androidx.room.ktx)
     // DataStore
     implementation(libs.androidx.datastore.preferences)
+    // OkHttp3
+    implementation(libs.okhttp3.okhttp)
+    implementation(libs.okhttp3.logging.interceptor)
+    // Retrofit2
+    implementation(libs.retrofit)
+    // Gson
+    implementation(libs.converter.gson)
     // hilt
     implementation(libs.hilt.android)
     ksp(libs.hilt.android.compiler)

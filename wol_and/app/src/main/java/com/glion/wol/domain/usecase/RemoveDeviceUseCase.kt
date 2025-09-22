@@ -1,6 +1,6 @@
 package com.glion.wol.domain.usecase
 
-import com.glion.wol.domain.model.Device
+import com.glion.wol.domain.model.local.Device
 import com.glion.wol.domain.repository.LocalRepository
 import javax.inject.Inject
 

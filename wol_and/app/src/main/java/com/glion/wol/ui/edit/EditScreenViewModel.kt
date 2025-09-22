@@ -2,7 +2,7 @@ package com.glion.wol.ui.edit
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.glion.wol.domain.model.Device
+import com.glion.wol.domain.model.local.Device
 import com.glion.wol.domain.usecase.AddDeviceUseCase
 import com.glion.wol.domain.usecase.ChangeDeviceInfoUseCase
 import com.glion.wol.domain.usecase.GetAllDeviceUseCase

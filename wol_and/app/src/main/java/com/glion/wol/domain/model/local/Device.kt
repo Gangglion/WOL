@@ -1,4 +1,4 @@
-package com.glion.wol.domain.model
+package com.glion.wol.domain.model.local
 
 /**
  * Project : WOL

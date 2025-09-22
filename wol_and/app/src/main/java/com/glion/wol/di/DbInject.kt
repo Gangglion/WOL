@@ -27,7 +27,7 @@ import javax.inject.Singleton
  * Copyright @2025 Gangglion. All rights reserved
  */
 
-@Database(entities = [DeviceEntity::class], version = 1)
+@Database(entities = [DeviceEntity::class], version = 1, exportSchema = false)
 abstract class WolDatabase: RoomDatabase() {
     abstract fun deviceDao(): DeviceDao
 }

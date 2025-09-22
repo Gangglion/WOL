@@ -12,7 +12,8 @@ import kotlinx.serialization.Serializable
  *
  * Copyright @2025 Gangglion. All rights reserved
  */
-
+@Serializable
+object Splash
 @Serializable
 object Main
 @Serializable
