@@ -21,7 +21,8 @@ import com.glion.wol.ui.edit.EditScreen
 import com.glion.wol.ui.main.TurnOnScreen
 import com.glion.wol.ui.navigation.Edit
 import com.glion.wol.ui.navigation.Main
-import com.glion.wol.ui.navigation.Splash
+import com.glion.wol.ui.navigation.WolSplash
+import com.glion.wol.ui.splash.WolSplashScreen
 import com.glion.wol.ui.theme.WOLTheme
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -47,9 +48,14 @@ fun MainScreen() {
             // 화면 하단에 뜨는 Snackbar 가 키보드에 의해 가려지지 않도록 화면의 실제 Bottom 영역에 뜨도록 지정
             modifier = Modifier.windowInsetsPadding(WindowInsets.ime)
         ) { _ ->
-            NavHost(navController, startDestination = Main){
-                composable<Splash> {
-
+            NavHost(navController, startDestination = WolSplash){
+                composable<WolSplash> {
+                    WolSplashScreen(
+                        sbHost = snackbarHostState,
+                        goMain = {
+                            navController.navigate(route = WolSplash)
+                        }
+                    )
                 }
                 composable<Main> {
                     TurnOnScreen(
