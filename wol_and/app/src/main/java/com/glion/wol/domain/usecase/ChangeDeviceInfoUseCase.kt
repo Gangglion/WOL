@@ -3,9 +3,13 @@ package com.glion.wol.domain.usecase
 import com.glion.wol.domain.model.local.Device
 import com.glion.wol.domain.repository.LocalRepository
 import com.glion.wol.util.FlowResult
+import com.glion.wol.util.LogUtil
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.emptyFlow
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onStart
 import javax.inject.Inject
 
 /**
@@ -26,26 +30,67 @@ class ChangeDeviceInfoUseCase @Inject constructor(
             oldDevice.mac == newDevice.mac && oldDevice.alias == newDevice.alias -> { // 아무런 변경이 없을 때
                 emptyFlow()
             }
+
             oldDevice.mac == newDevice.mac && oldDevice.alias != newDevice.alias -> { // 별명만 변경되었을 때
                 localRepository.changeAlias(newDevice.id, newDevice.alias)
+                    .map<Unit, FlowResult<Boolean>> {
+                        FlowResult.Success(true)
+                    }
+                    .onStart { emit(FlowResult.Loading) }
+                    .catch { e ->
+                        LogUtil.e("changeAlias has Error", e)
+                        emit(FlowResult.Error("", e.message ?: "UnKnown"))
+                    }
             }
+
             oldDevice.mac != newDevice.mac && oldDevice.alias == newDevice.alias -> { // 맥주소만 변경되었을 때
                 localRepository.changeMacAddr(newDevice.id, newDevice.mac)
+                    .map<Unit, FlowResult<Boolean>> {
+                        FlowResult.Success(true)
+                    }
+                    .onStart {
+                        emit(FlowResult.Loading)
+                    }
+                    .catch { e ->
+                        LogUtil.e("changeMacAddr has Error", e)
+                        emit(FlowResult.Error("", e.message ?: "UnKnown"))
+                    }
             }
+
             else -> { // 둘다 변경되었을 때
-                val macFlow = localRepository.changeMacAddr(newDevice.id, newDevice.mac)
-                val aliasFlow = localRepository.changeAlias(newDevice.id, newDevice.alias)
+                val macFlow: Flow<FlowResult<Boolean>> = localRepository.changeMacAddr(newDevice.id, newDevice.mac)
+                    .map<Unit, FlowResult<Boolean>> {
+                        FlowResult.Success(true)
+                    }
+                    .catch { e ->
+                        LogUtil.e("changeMacAddr has Error", e)
+                        emit(FlowResult.Error("", e.message ?: "UnKnown"))
+                    }
+                val aliasFlow: Flow<FlowResult<Boolean>> = localRepository.changeAlias(newDevice.id, newDevice.alias)
+                    .map<Unit, FlowResult<Boolean>> {
+                        FlowResult.Success(true)
+                    }
+                    .catch { e ->
+                        LogUtil.e("changeAlias has Error", e)
+                        emit(FlowResult.Error("", e.message ?: "UnKnown"))
+                    }
 
                 combine(macFlow, aliasFlow) { macRes, aliasRes ->
                     if(macRes is FlowResult.Success && aliasRes is FlowResult.Success) {
                         FlowResult.Success(true)
                     } else {
-                        val error = macRes as? FlowResult.Error ?: aliasRes as? FlowResult.Error
-                        FlowResult.Error(
-                            error?.errorCode ?: "",
-                            error?.errorMsg ?: "맥 주소 및 별명 변경 중 오류 발생"
-                        )
+                        val errorMessage = mutableListOf<String>()
+
+                        if(macRes is FlowResult.Error) {
+                            errorMessage.add("changeMacAddr has Error : ${macRes.errorMsg}")
+                        }
+                        if(aliasRes is FlowResult.Error) {
+                            errorMessage.add("changeAlias has Error : ${aliasRes.errorMsg}")
+                        }
+                        FlowResult.Error("", errorMessage.joinToString("\n"))
                     }
+                }.onStart {
+                    emit(FlowResult.Loading)
                 }
             }
         }

@@ -11,6 +11,6 @@ package com.glion.wol.data.api.data
  * Copyright @2025 Gangglion. All rights reserved
  */
 data class RequestWolStart(
-    val mac: String,
+    val encryptedData: String,
     val iv: String
 )

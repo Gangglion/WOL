@@ -3,6 +3,7 @@ package com.glion.wol.data.datastore.datasource
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
+import com.glion.wol.data.datastore.HEADER_TOKEN
 import com.glion.wol.data.datastore.SELECTED_INDEX
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
@@ -29,6 +30,17 @@ class SettingDataSourceImpl @Inject constructor(
     override suspend fun editSelectIndex(idx: Long) {
         ds.edit { pref ->
             pref[SELECTED_INDEX] = idx
+        }
+    }
+
+    override val token: Flow<String?>
+        get() = ds.data.map { pref ->
+            pref[HEADER_TOKEN]
+        }
+
+    override suspend fun setToken(token: String) {
+        ds.edit { pref ->
+            pref[HEADER_TOKEN] = token
         }
     }
 }

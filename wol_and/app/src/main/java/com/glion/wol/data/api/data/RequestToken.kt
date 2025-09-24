@@ -2,15 +2,15 @@ package com.glion.wol.data.api.data
 
 /**
  * Project : WOL
- * File : RequestJwtToken
+ * File : RequestToken
  * Created by glion on 2025-09-22
  *
  * Description:
- * - JWT 토큰 요청 Request
+ * - Header Authorization 토큰 요청 Request
  *
  * Copyright @2025 Gangglion. All rights reserved
  */
-data class RequestJwtToken(
+data class RequestToken(
     val appKey: String,
     val iv: String
 )

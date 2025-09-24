@@ -2,11 +2,13 @@ package com.glion.wol.ui.splash
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.glion.crypto_module.RSAUtils
+import com.glion.wol.domain.usecase.splash.InitializeUseCase
+import com.glion.wol.util.FlowResult
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 /**
@@ -21,17 +23,44 @@ import javax.inject.Inject
  */
 @HiltViewModel
 class WolSplashViewModel @Inject constructor(
-
+    private val initializeUseCase: InitializeUseCase
 ) : ViewModel() {
+    private val _uiState = MutableStateFlow(WolSplashUiState())
+    val uiState: StateFlow<WolSplashUiState> = _uiState
 
     init {
-        viewModelScope.launch(Dispatchers.Default) {
-            // 1. RSA 키 가져오기(없으면 생성)
-            RSAUtils.getOrCreateRSAKeyPair()
-            // 2. 생성 완료 후 AES 키 존재 확인 -> 없으면 키 교환
-            withContext(Dispatchers.IO) {
+        initializeApp()
+    }
 
+    private fun initializeApp() {
+        viewModelScope.launch {
+            initializeUseCase().collect { result ->
+                when(result) {
+                    is FlowResult.Success -> {
+                        _uiState.update {
+                            it.copy(goMain = true)
+                        }
+                    }
+                    is FlowResult.Error -> {
+                        setSnackbarMsg(result.errorMsg)
+                    }
+                    is FlowResult.Loading -> {
+
+                    }
+                }
             }
+        }
+    }
+
+    fun setSnackbarMsg(msg: String) {
+        _uiState.update {
+            it.copy(errorMsg = msg)
+        }
+    }
+
+    fun clearSnackbarMsg() {
+        _uiState.update {
+            it.copy(errorMsg = null)
         }
     }
 }

@@ -1,6 +1,7 @@
 package com.glion.wol.data.datastore
 
 import androidx.datastore.preferences.core.longPreferencesKey
+import androidx.datastore.preferences.core.stringPreferencesKey
 
 /**
  * Project : WOL
@@ -14,3 +15,4 @@ import androidx.datastore.preferences.core.longPreferencesKey
  */
 
 val SELECTED_INDEX = longPreferencesKey("selected_index")
+val HEADER_TOKEN = stringPreferencesKey("header_token")

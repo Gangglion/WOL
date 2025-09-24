@@ -21,3 +21,7 @@ fun String.b64DecodeStr() : String {
     val decode = Base64.getDecoder().decode(this)
     return String(decode, Charsets.UTF_8)
 }
+
+fun String.withColon(): String = this.chunked(2).joinToString(":")
+
+fun String.deleteColon() : String = this.replace(":", "")

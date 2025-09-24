@@ -3,7 +3,7 @@ package com.glion.wol.data.api.datasource
 import com.glion.wol.data.api.data.RequestExchangeKey
 import com.glion.wol.data.api.data.RequestWolStart
 import com.glion.wol.data.api.data.ResponseExchangeKey
-import com.glion.wol.data.api.data.ResponseJwtToken
+import com.glion.wol.data.api.data.ResponseToken
 import com.glion.wol.data.api.data.ResponseWolStart
 
 /**
@@ -23,14 +23,14 @@ interface ApiDataSource {
     suspend fun exchangeKey(body: RequestExchangeKey) : ResponseExchangeKey
 
     /**
-     * JWT 토큰 얻기
+     * 토큰 얻기
      */
-    suspend fun getJwtToken() : ResponseJwtToken
+    suspend fun getToken() : ResponseToken
 
     /**
      * 토큰 리프레시
      */
-    suspend fun refreshJwtToken() : ResponseJwtToken
+    suspend fun refreshToken() : ResponseToken
 
     /**
      * 기기 전원 켜기

@@ -1,7 +1,11 @@
 package com.glion.wol.di
 
+import com.glion.wol.data.repository.CryptoRepositoryImpl
 import com.glion.wol.data.repository.LocalRepositoryImpl
+import com.glion.wol.data.repository.RemoteRepositoryImpl
+import com.glion.wol.domain.repository.CryptoRepository
 import com.glion.wol.domain.repository.LocalRepository
+import com.glion.wol.domain.repository.RemoteRepository
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
@@ -27,5 +31,15 @@ abstract class RepositoryInjectModule {
         localRepositoryImpl: LocalRepositoryImpl
     ) : LocalRepository
 
-    // TODO : 추후 RemoteRepository Binds 필요
+    @Binds
+    @Singleton
+    abstract fun bindRemoteRepository(
+        remoteRepositoryImpl: RemoteRepositoryImpl
+    ) : RemoteRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindCryptoRepository(
+        cryptoRepositoryImpl: CryptoRepositoryImpl
+    ) : CryptoRepository
 }

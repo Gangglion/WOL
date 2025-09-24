@@ -8,6 +8,8 @@ import com.glion.wol.domain.usecase.ChangeDeviceInfoUseCase
 import com.glion.wol.domain.usecase.GetAllDeviceUseCase
 import com.glion.wol.domain.usecase.RemoveDeviceUseCase
 import com.glion.wol.util.FlowResult
+import com.glion.wol.util.deleteColon
+import com.glion.wol.util.withColon
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -56,15 +58,15 @@ class EditScreenViewModel @Inject constructor(
             it.copy(
                 isAddMode = false,
                 editDevice = editDevice,
-                inputMac = editDevice?.mac ?: "",
+                inputMac = editDevice?.mac?.deleteColon() ?: "",
                 inputAlias = editDevice?.alias ?: ""
             )
         }
     }
 
     fun inputMac(input: String) {
-        if(input.length > 16) {
-            showSnackbarMsg("Mac 주소는 16자 여야 합니다.")
+        if(input.length > 12) {
+            showSnackbarMsg("Mac 주소는 12자 여야 합니다.")
         } else {
             _uiState.update {
                 it.copy(inputMac = input)
@@ -109,12 +111,14 @@ class EditScreenViewModel @Inject constructor(
     }
 
     fun addDevice(device: Device) {
-        if(device.mac.length < 16) {
-            showSnackbarMsg("Mac 주소는 16자여야 합니다")
+        if(device.mac.length < 12) {
+            showSnackbarMsg("Mac 주소는 12자여야 합니다")
             return
         }
+        // 맥주소 콜론 붙여서 변환
+        val withColonDevice = device.copy(mac = device.mac.withColon())
         viewModelScope.launch {
-            addDeviceUseCase.invoke(device).collect { addResult ->
+            addDeviceUseCase.invoke(withColonDevice).collect { addResult ->
                 when(addResult) {
                     is FlowResult.Loading -> {
 
@@ -132,8 +136,9 @@ class EditScreenViewModel @Inject constructor(
     }
 
     fun changeDeviceInfo(newDevice: Device) {
+        val newDeviceWithColon = newDevice.copy(mac = newDevice.mac.withColon())
         viewModelScope.launch {
-            changeDeviceInfoUseCase.invoke(_uiState.value.editDevice!!, newDevice).collect { updateResult ->
+            changeDeviceInfoUseCase.invoke(_uiState.value.editDevice!!, newDeviceWithColon).collect { updateResult ->
                 when(updateResult) {
                     is FlowResult.Loading -> {
 

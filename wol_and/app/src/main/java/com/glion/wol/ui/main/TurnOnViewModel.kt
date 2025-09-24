@@ -6,6 +6,7 @@ import com.glion.wol.domain.model.local.Device
 import com.glion.wol.domain.usecase.ChangePowerStatusUseCase
 import com.glion.wol.domain.usecase.GetAllDeviceUseCase
 import com.glion.wol.domain.usecase.GetSelectedIndexUseCase
+import com.glion.wol.domain.usecase.PowerOnUseCase
 import com.glion.wol.domain.usecase.SetSelectedIndexUseCase
 import com.glion.wol.util.FlowResult
 import com.glion.wol.util.LogUtil
@@ -32,7 +33,8 @@ class TurnOnViewModel @Inject constructor(
     private val getAllDeviceUseCase: GetAllDeviceUseCase,
     private val getSelectedIndexUseCase: GetSelectedIndexUseCase,
     private val setSelectedIndexUseCase: SetSelectedIndexUseCase,
-    private val changePowerStatusUseCase: ChangePowerStatusUseCase
+    private val changePowerStatusUseCase: ChangePowerStatusUseCase,
+    private val powerOnUseCase: PowerOnUseCase
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(TurnOnUiState())
     val uiState : StateFlow<TurnOnUiState> = _uiState
@@ -95,9 +97,18 @@ class TurnOnViewModel @Inject constructor(
         viewModelScope.launch {
             with(_uiState.value) {
                 if(selectedDevice != null) {
-                    // TODO : 전원 켜기 UseCase 실행 후, 그 결과가 Success 라면
-                    _uiState.update {
-                        it.copy(userMsg = "${selectedDevice.alias} 의 전원을 켜는 중입니다.")
+                    powerOnUseCase(selectedDevice.mac).collect { result ->
+                        when(result) {
+                            is FlowResult.Success -> {
+                                showSnackbarMsg(msg = "${selectedDevice.alias} 의 전원을 켜는 중입니다.")
+                            }
+                            is FlowResult.Error -> {
+                                showSnackbarMsg(msg = result.errorMsg)
+                            }
+                            is FlowResult.Loading -> {
+
+                            }
+                        }
                     }
                 }
             }

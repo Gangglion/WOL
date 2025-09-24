@@ -12,6 +12,8 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -36,11 +38,20 @@ import com.glion.wol.R
 @Composable
 fun WolSplashScreen(
     sbHost: SnackbarHostState,
-    goMain: () -> Unit,
+    navigateToMain: () -> Unit,
     viewModel: WolSplashViewModel = hiltViewModel()
 ) {
-    LaunchedEffect(Unit) {
+    val uiState by viewModel.uiState.collectAsState()
 
+    uiState.errorMsg?.let { message ->
+        LaunchedEffect(Unit) {
+            sbHost.showSnackbar(message)
+            viewModel.clearSnackbarMsg()
+        }
+    }
+
+    LaunchedEffect(uiState.goMain) {
+        if(uiState.goMain) navigateToMain()
     }
 
     WolSplashContent()

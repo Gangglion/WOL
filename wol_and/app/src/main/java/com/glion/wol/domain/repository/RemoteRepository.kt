@@ -1,7 +1,6 @@
 package com.glion.wol.domain.repository
 
 import com.glion.wol.domain.model.remote.WolResult
-import com.glion.wol.util.FlowResult
 import kotlinx.coroutines.flow.Flow
 
 /**
@@ -17,12 +16,14 @@ import kotlinx.coroutines.flow.Flow
 interface RemoteRepository {
     /**
      * 키 교환 (RSAPublicKey -> AESKey)
+     * @param rsaPublicKey RSA Public Key
+     * @return 암호화된 AESKey
      */
-    suspend fun exchangeKey(rsaPublicKey: ByteArray) : Flow<FlowResult<ByteArray>>
+    suspend fun exchangeKey(rsaPublicKey: ByteArray) : Flow<ByteArray>
 
-    suspend fun getJwtToken() : Flow<FlowResult<String>>
+    suspend fun getToken() : Flow<String>
 
-    suspend fun refreshJwtToken() : Flow<FlowResult<String>>
+    suspend fun refreshToken() : Flow<String>
 
-    suspend fun startDevice(mac: String, iv: String) : Flow<FlowResult<WolResult>>
+    suspend fun startDevice(mac: String, iv: String) : Flow<WolResult>
 }

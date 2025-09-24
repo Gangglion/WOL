@@ -2,12 +2,14 @@ package com.glion.wol.data.api.datasource
 
 import com.glion.crypto_module.encryptExternalAES
 import com.glion.wol.BuildConfig
-import com.glion.wol.data.api.WolService
+import com.glion.wol.data.api.NeedHeaderWolService
+import com.glion.wol.data.api.NoHeaderWolService
+import com.glion.wol.data.api.RefreshTokenApi
 import com.glion.wol.data.api.data.RequestExchangeKey
-import com.glion.wol.data.api.data.RequestJwtToken
+import com.glion.wol.data.api.data.RequestToken
 import com.glion.wol.data.api.data.RequestWolStart
 import com.glion.wol.data.api.data.ResponseExchangeKey
-import com.glion.wol.data.api.data.ResponseJwtToken
+import com.glion.wol.data.api.data.ResponseToken
 import com.glion.wol.data.api.data.ResponseWolStart
 import com.glion.wol.util.b64Encode
 import javax.inject.Inject
@@ -23,10 +25,12 @@ import javax.inject.Inject
  * Copyright @2025 Gangglion. All rights reserved
  */
 class ApiDataSourceImpl @Inject constructor(
-    private val api: WolService
+    private val noHeaderApi: NoHeaderWolService,
+    private val needHeaderApi: NeedHeaderWolService,
+    private val refreshTokenApi: RefreshTokenApi
 ) : ApiDataSource {
     override suspend fun exchangeKey(body: RequestExchangeKey): ResponseExchangeKey {
-        val response = api.exchangeKey(body)
+        val response = noHeaderApi.exchangeKey(body)
         if(response.isSuccessful) {
             return response.body() ?: throw NullPointerException("Body is Null")
         } else {
@@ -34,12 +38,12 @@ class ApiDataSourceImpl @Inject constructor(
         }
     }
 
-    override suspend fun getJwtToken(): ResponseJwtToken {
+    override suspend fun getToken(): ResponseToken {
         val aesEncryptedAppKey = (BuildConfig.APP_KEY).encryptExternalAES()
         val b64EncodedAppKey = aesEncryptedAppKey.first.b64Encode()
         val b64EncodedIv = aesEncryptedAppKey.second.b64Encode()
-        val body = RequestJwtToken(appKey = b64EncodedAppKey, iv = b64EncodedIv)
-        val response = api.getJwtToken(body)
+        val body = RequestToken(appKey = b64EncodedAppKey, iv = b64EncodedIv)
+        val response = noHeaderApi.getToken(body)
         if(response.isSuccessful) {
             return response.body() ?: throw NullPointerException("Body is Null")
         } else {
@@ -47,8 +51,8 @@ class ApiDataSourceImpl @Inject constructor(
         }
     }
 
-    override suspend fun refreshJwtToken(): ResponseJwtToken {
-        val response = api.refreshJwtToken()
+    override suspend fun refreshToken(): ResponseToken {
+        val response = refreshTokenApi.refreshToken()
         if(response.isSuccessful) {
             return response.body() ?: throw NullPointerException("Body is Null")
         } else {
@@ -57,7 +61,7 @@ class ApiDataSourceImpl @Inject constructor(
     }
 
     override suspend fun startDevice(body: RequestWolStart): ResponseWolStart {
-        val response = api.startDevice(body)
+        val response = needHeaderApi.startDevice(body)
         if(response.isSuccessful) {
             return response.body() ?: throw NullPointerException("Body is Null")
         } else {

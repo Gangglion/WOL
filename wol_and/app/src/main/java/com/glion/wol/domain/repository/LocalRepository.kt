@@ -1,7 +1,6 @@
 package com.glion.wol.domain.repository
 
 import com.glion.wol.domain.model.local.Device
-import com.glion.wol.util.FlowResult
 import kotlinx.coroutines.flow.Flow
 
 /**
@@ -15,19 +14,29 @@ import kotlinx.coroutines.flow.Flow
  * Copyright @2025 Gangglion. All rights reserved
  */
 interface LocalRepository {
-    suspend fun getAllDevice() : Flow<FlowResult<List<Device>>>
+    suspend fun getAllDevice() : Flow<List<Device>>
 
-    suspend fun changeMacAddr(id: Long, newMacAddr: String) : Flow<FlowResult<Boolean>>
+    suspend fun changeMacAddr(id: Long, newMacAddr: String) : Flow<Unit>
 
-    suspend fun changeAlias(id: Long, newAlias: String) : Flow<FlowResult<Boolean>>
+    suspend fun changeAlias(id: Long, newAlias: String) : Flow<Unit>
 
-    suspend fun changePowerStatus(macAddr: String, status: Boolean) : Flow<FlowResult<Boolean>>
+    suspend fun changePowerStatus(macAddr: String, status: Boolean) : Flow<Unit>
 
-    suspend fun insertDevice(vararg devices: Device) : Flow<FlowResult<Boolean>>
+    suspend fun insertDevice(vararg devices: Device) : Flow<Unit>
 
-    suspend fun deleteDevice(device: Device) : Flow<FlowResult<Boolean>>
+    suspend fun deleteDevice(device: Device) : Flow<Boolean>
 
-    val selectedIndex: Flow<FlowResult<Long>>
+    val selectedIndex: Flow<Long>
 
-    suspend fun editSelectedIndex(idx: Long): Flow<FlowResult<Boolean>>
+    /**
+     * 선택한 index 수정 - 일회성 동작으로 반환값 없음
+     */
+    suspend fun editSelectedIndex(idx: Long)
+
+    val token: Flow<String?>
+
+    /**
+     * 토큰 값 변경 일회성 동작 - 반환값 없음
+     */
+    suspend fun setToken(token: String)
 }

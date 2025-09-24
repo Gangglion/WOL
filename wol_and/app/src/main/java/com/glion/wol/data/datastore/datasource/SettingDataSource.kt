@@ -15,4 +15,6 @@ import kotlinx.coroutines.flow.Flow
 interface SettingDataSource {
     val selectedIndex: Flow<Long>
     suspend fun editSelectIndex(idx: Long)
+    val token: Flow<String?>
+    suspend fun setToken(token: String)
 }

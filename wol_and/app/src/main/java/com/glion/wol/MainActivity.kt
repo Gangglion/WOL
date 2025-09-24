@@ -52,8 +52,13 @@ fun MainScreen() {
                 composable<WolSplash> {
                     WolSplashScreen(
                         sbHost = snackbarHostState,
-                        goMain = {
-                            navController.navigate(route = WolSplash)
+                        navigateToMain = {
+                            navController.navigate(route = Main) {
+                                popUpTo(WolSplash) {
+                                    inclusive = true
+                                }
+                                launchSingleTop = true
+                            }
                         }
                     )
                 }

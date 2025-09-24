@@ -6,14 +6,12 @@ import com.glion.wol.data.mapper.toEntity
 import com.glion.wol.data.mapper.toModel
 import com.glion.wol.domain.model.local.Device
 import com.glion.wol.domain.repository.LocalRepository
-import com.glion.wol.util.FlowResult
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
-import kotlinx.coroutines.flow.map
 import javax.inject.Inject
+import javax.inject.Singleton
 
 /**
  * Project : WOL
@@ -25,91 +23,58 @@ import javax.inject.Inject
  *
  * Copyright @2025 Gangglion. All rights reserved
  */
+@Singleton
 class LocalRepositoryImpl @Inject constructor(
     private val roomDs: DbDataSource,
     private val settingDs: SettingDataSource
 ) : LocalRepository {
-    override suspend fun getAllDevice(): Flow<FlowResult<List<Device>>> = flow {
-        emit(FlowResult.Loading)
-        try {
-            val response = roomDs.getAllDevice().map { it.toModel() }
-            emit(FlowResult.Success(response))
-        } catch(e: Exception) {
-            e.printStackTrace()
-            emit(FlowResult.Error("", e.message ?: "LocalRepositoryImpl's getAllDevice Exception"))
-        }
+    override suspend fun getAllDevice(): Flow<List<Device>> = flow {
+        emit(roomDs.getAllDevice().map { it.toModel() })
     }.flowOn(Dispatchers.IO)
 
-    override suspend fun changeMacAddr(id: Long, newMacAddr: String): Flow<FlowResult<Boolean>> = flow {
-        emit(FlowResult.Loading)
-        try {
-            roomDs.changeMacAddr(id, newMacAddr)
-            emit(FlowResult.Success(true))
-        } catch(e: Exception) {
-            emit(FlowResult.Error("", e.message ?: "LocalRepositoryImpl's changeMacAddr Exception"))
-        }
+    override suspend fun changeMacAddr(id: Long, newMacAddr: String): Flow<Unit> = flow {
+        roomDs.changeMacAddr(id, newMacAddr)
+        emit(Unit)
     }.flowOn(Dispatchers.IO)
 
-    override suspend fun changeAlias(id: Long, newAlias: String): Flow<FlowResult<Boolean>> = flow {
-        emit(FlowResult.Loading)
-        try {
-            roomDs.changeAlias(id, newAlias)
-            emit(FlowResult.Success(true))
-        } catch(e: Exception) {
-            emit(FlowResult.Error("", e.message ?: "LocalRepositoryImpl's changeAlias Exception"))
-        }
+    override suspend fun changeAlias(id: Long, newAlias: String): Flow<Unit> = flow {
+        roomDs.changeAlias(id, newAlias)
+        emit(Unit)
     }.flowOn(Dispatchers.IO)
 
-    override suspend fun changePowerStatus(macAddr: String, status: Boolean): Flow<FlowResult<Boolean>> = flow {
-        emit(FlowResult.Loading)
-        try {
-            roomDs.changePowerStatus(macAddr, status)
-            emit(FlowResult.Success(true))
-        } catch(e: Exception) {
-            emit(FlowResult.Error("", e.message ?: "LocalRepositoryImpl's changePowerStatus Exception"))
-        }
+    override suspend fun changePowerStatus(macAddr: String, status: Boolean): Flow<Unit> = flow {
+        roomDs.changePowerStatus(macAddr, status)
+        emit(Unit)
     }.flowOn(Dispatchers.IO)
 
-    override suspend fun insertDevice(vararg devices: Device): Flow<FlowResult<Boolean>> = flow {
-        emit(FlowResult.Loading)
-        try {
-            roomDs.insertDevice(*devices.map { it.toEntity() }.toTypedArray())
-            emit(FlowResult.Success(true))
-        } catch(e: Exception) {
-            emit(FlowResult.Error("", e.message ?: "LocalRepositoryImpl's insertDevice Exception"))
-        }
+    override suspend fun insertDevice(vararg devices: Device): Flow<Unit> = flow {
+        roomDs.insertDevice(*devices.map { it.toEntity() }.toTypedArray())
+        emit(Unit)
     }.flowOn(Dispatchers.IO)
 
-    override suspend fun deleteDevice(device: Device): Flow<FlowResult<Boolean>> = flow {
-        emit(FlowResult.Loading)
-        try {
-            val deleteCount = roomDs.deleteDevice(device.toEntity())
-            if(deleteCount > 0) {
-                emit(FlowResult.Success(true))
-            } else {
-                emit(FlowResult.Error("", "Nothing Delete"))
-            }
-        } catch(e: Exception) {
-            emit(FlowResult.Error("", e.message ?: "LocalRepositoryImpl's deleteDevice Exception"))
+    override suspend fun deleteDevice(device: Device): Flow<Boolean> = flow {
+        val deleteCount = roomDs.deleteDevice(device.toEntity())
+        if(deleteCount > 0) {
+            emit(true)
+        } else {
+            throw Exception("Nothing to Delete")
         }
+
     }.flowOn(Dispatchers.IO)
 
     // dataSource 에서 이미 Flow 를 넘겨주기 때문에, repository 에서 다시 flow 를 만들 필요는 없음
-    override val selectedIndex: Flow<FlowResult<Long>>
+    override val selectedIndex: Flow<Long>
         get() = settingDs.selectedIndex
-            .map<Long, FlowResult<Long>> { FlowResult.Success(it) }
-            .catch { e ->
-                e.printStackTrace()
-                emit(FlowResult.Error("", e.message ?: "unknown error in LocalRepositoryImpl's selectedIndex"))
-            }
 
 
-    override suspend fun editSelectedIndex(idx: Long): Flow<FlowResult<Boolean>> = flow {
-        try {
-            settingDs.editSelectIndex(idx)
-            emit(FlowResult.Success(true))
-        } catch(e: Exception) {
-            emit(FlowResult.Error("", e.message ?: "LocalRepositoryImpl's editSelectedIndex Exception"))
-        }
-    }.flowOn(Dispatchers.IO)
+    override suspend fun editSelectedIndex(idx: Long) {
+        settingDs.editSelectIndex(idx)
+    }
+
+    override val token: Flow<String?>
+        get() = settingDs.token
+
+    override suspend fun setToken(token: String) {
+        settingDs.setToken(token)
+    }
 }
