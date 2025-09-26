@@ -14,5 +14,6 @@ import androidx.datastore.preferences.core.stringPreferencesKey
  * Copyright @2025 Gangglion. All rights reserved
  */
 
+val CURRENT_URL = stringPreferencesKey("current_url")
 val SELECTED_INDEX = longPreferencesKey("selected_index")
 val HEADER_TOKEN = stringPreferencesKey("header_token")

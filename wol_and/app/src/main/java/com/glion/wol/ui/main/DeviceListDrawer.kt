@@ -46,7 +46,7 @@ import com.glion.wol.domain.model.local.Device
 fun SettingDrawer(
     drawerState: DrawerState,
     deviceList: List<Device>,
-    onClickDevice: (Device) -> Unit,
+    onClickDevice: (Long) -> Unit,
     goSetting: () -> Unit,
     content: @Composable () -> Unit,
 ) {
@@ -70,7 +70,7 @@ fun SettingDrawer(
 @Composable
 fun DeviceDrawerContent(
     deviceList: List<Device>,
-    onClickDevice: (Device) -> Unit,
+    onClickDevice: (Long) -> Unit,
     goSetting: () -> Unit,
 ) {
     ModalDrawerSheet {
@@ -95,7 +95,7 @@ fun DeviceDrawerContent(
                 items(deviceList) { device ->
                     DeviceItem(
                         device = device,
-                        itemClick = { onClickDevice(device) }
+                        itemClick = { onClickDevice(device.id) }
                     )
                 }
             }

@@ -19,10 +19,10 @@ import com.glion.wol.domain.model.local.Device
  * Copyright @2025 Gangglion. All rights reserved
  */
 data class EditUiState(
+    val isLoading: Boolean = false,
     val deviceList: List<Device> = emptyList(),
     val isAddMode: Boolean = false,
     val editDevice: Device? = null,
     val inputMac: String = "",
     val inputAlias: String = "",
-    val userMsg: String? = null
 )

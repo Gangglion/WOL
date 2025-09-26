@@ -1,6 +1,6 @@
 package com.glion.wol.data.auth
 
-import com.glion.wol.domain.repository.LocalRepository
+import com.glion.wol.data.datastore.datasource.SettingDataSource
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
@@ -10,18 +10,19 @@ import javax.inject.Singleton
 /**
  * Project : WOL
  * File : TokenManager
- * Created by shhan on 2025-09-24
+ * Created by glion on 2025-09-24
  *
  * Description:
- * - 추후 기입
+ * - Header 토큰 관리
  *
- * Copyright @2025 UBIPLUS. All rights reserved
+ * Copyright @2025 Gangglion. All rights reserved
  */
 @Singleton
 class TokenManager @Inject constructor(
-    private val localRepository: LocalRepository
+    private val settingDataSource: SettingDataSource
 ) {
     // 토큰값 메모리에 캐시
+    @Volatile
     private var authToken: String? = null
 
     // 여러 스레드에서 동시 접근 방지
@@ -41,7 +42,7 @@ class TokenManager @Inject constructor(
         // 캐시된 토큰값이 없을 경우, 초기화 로직 실행
         mutex.withLock { // 다른 스레드가 뮤텍스를 기다리는동안 토큰 초기화가 이루어졌을 수 있으니 확인
             if(authToken == null) {
-                authToken = localRepository.token.firstOrNull()
+                authToken = settingDataSource.token.firstOrNull()
             }
             return authToken
         }
@@ -54,7 +55,7 @@ class TokenManager @Inject constructor(
     suspend fun saveToken(token: String) {
         mutex.withLock {
             authToken = token
-            localRepository.setToken(token)
+            settingDataSource.setToken(token)
         }
     }
 }

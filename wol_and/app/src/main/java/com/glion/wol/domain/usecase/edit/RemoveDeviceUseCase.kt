@@ -1,4 +1,4 @@
-package com.glion.wol.domain.usecase
+package com.glion.wol.domain.usecase.edit
 
 import com.glion.wol.domain.model.local.Device
 import com.glion.wol.domain.repository.LocalRepository

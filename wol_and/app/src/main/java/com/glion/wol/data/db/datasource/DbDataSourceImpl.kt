@@ -2,6 +2,7 @@ package com.glion.wol.data.db.datasource
 
 import com.glion.wol.data.db.dao.DeviceDao
 import com.glion.wol.data.db.entity.DeviceEntity
+import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 
 /**
@@ -17,7 +18,7 @@ import javax.inject.Inject
 class DbDataSourceImpl @Inject constructor(
     private val dao: DeviceDao
 ) : DbDataSource {
-    override suspend fun getAllDevice(): List<DeviceEntity> {
+    override fun getAllDevice(): Flow<List<DeviceEntity>> {
         return dao.getAllDevice()
     }
 

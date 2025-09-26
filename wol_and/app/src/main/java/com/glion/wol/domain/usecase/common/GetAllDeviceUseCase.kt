@@ -1,4 +1,4 @@
-package com.glion.wol.domain.usecase
+package com.glion.wol.domain.usecase.common
 
 import com.glion.wol.domain.model.local.Device
 import com.glion.wol.domain.repository.LocalRepository
@@ -12,28 +12,28 @@ import javax.inject.Inject
 
 /**
  * Project : WOL
- * File : AddDeviceUseCase
+ * File : GetAllDeviceUsecase
  * Created by glion on 2025-09-04
  *
  * Description:
- * - 기기 저장 UseCase
+ * - 모든 기기 리스트 가져오는 UseCase
  *
  * Copyright @2025 Gangglion. All rights reserved
  */
-class AddDeviceUseCase @Inject constructor(
+class GetAllDeviceUseCase @Inject constructor(
     private val localRepository: LocalRepository
 ) {
-    suspend operator fun invoke(device: Device) : Flow<FlowResult<Boolean>> {
-        return localRepository.insertDevice(device)
-            .map<Unit, FlowResult<Boolean>> { _ ->
-                FlowResult.Success(true)
+    operator fun invoke(): Flow<FlowResult<List<Device>>> {
+        return localRepository.getAllDevice()
+            .map<List<Device>, FlowResult<List<Device>>> {
+                FlowResult.Success(it)
             }
             .onStart {
                 emit(FlowResult.Loading)
             }
             .catch { e ->
-                LogUtil.e("AddDevice has Error", e)
-                emit(FlowResult.Error("", e.message ?: "AddDevice has Error"))
+                LogUtil.e("GetAllDevice has Error", e)
+                emit(FlowResult.Error("", e.message ?: "UnKnown"))
             }
     }
 }

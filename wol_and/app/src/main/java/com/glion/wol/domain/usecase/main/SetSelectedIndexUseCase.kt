@@ -1,4 +1,4 @@
-package com.glion.wol.domain.usecase
+package com.glion.wol.domain.usecase.main
 
 import com.glion.wol.domain.repository.LocalRepository
 import com.glion.wol.util.FlowResult

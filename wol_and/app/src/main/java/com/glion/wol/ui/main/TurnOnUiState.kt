@@ -13,7 +13,8 @@ import com.glion.wol.domain.model.local.Device
  * Copyright @2025 Gangglion. All rights reserved
  */
 data class TurnOnUiState(
+    val isLoading: Boolean = false,
+    val isInternalMode: Boolean = false,
     val deviceList: List<Device> = emptyList(),
-    val selectedDevice: Device? = null,
-    val userMsg: String? = null
+    val selectedDevice: Device? = null
 )

@@ -1,6 +1,7 @@
 package com.glion.wol.data.db.datasource
 
 import com.glion.wol.data.db.entity.DeviceEntity
+import kotlinx.coroutines.flow.Flow
 
 /**
  * Project : WOL
@@ -13,7 +14,7 @@ import com.glion.wol.data.db.entity.DeviceEntity
  * Copyright @2025 Gangglion. All rights reserved
  */
 interface DbDataSource {
-    suspend fun getAllDevice(): List<DeviceEntity>
+    fun getAllDevice(): Flow<List<DeviceEntity>>
 
     suspend fun changeMacAddr(id: Long, newMacAddr: String)
 

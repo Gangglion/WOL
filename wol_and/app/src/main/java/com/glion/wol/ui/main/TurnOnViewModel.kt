@@ -2,19 +2,22 @@ package com.glion.wol.ui.main
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.glion.wol.domain.model.local.Device
-import com.glion.wol.domain.usecase.ChangePowerStatusUseCase
-import com.glion.wol.domain.usecase.GetAllDeviceUseCase
-import com.glion.wol.domain.usecase.GetSelectedIndexUseCase
-import com.glion.wol.domain.usecase.PowerOnUseCase
-import com.glion.wol.domain.usecase.SetSelectedIndexUseCase
+import com.glion.wol.domain.usecase.common.GetAllDeviceUseCase
+import com.glion.wol.domain.usecase.main.GetCurrentUrlStatusUseCase
+import com.glion.wol.domain.usecase.main.GetSelectedIndexUseCase
+import com.glion.wol.domain.usecase.main.PowerOnUseCase
+import com.glion.wol.domain.usecase.main.SetCurrentUrlStatusUseCase
+import com.glion.wol.domain.usecase.main.SetSelectedIndexUseCase
 import com.glion.wol.util.FlowResult
 import com.glion.wol.util.LogUtil
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -30,74 +33,90 @@ import javax.inject.Inject
  */
 @HiltViewModel
 class TurnOnViewModel @Inject constructor(
-    private val getAllDeviceUseCase: GetAllDeviceUseCase,
-    private val getSelectedIndexUseCase: GetSelectedIndexUseCase,
+    getCurrentUrlStatusUseCase: GetCurrentUrlStatusUseCase,
+    getAllDeviceUseCase: GetAllDeviceUseCase,
+    getSelectedIndexUseCase: GetSelectedIndexUseCase,
+    private val setCurrentUrlStatusUseCase: SetCurrentUrlStatusUseCase,
     private val setSelectedIndexUseCase: SetSelectedIndexUseCase,
-    private val changePowerStatusUseCase: ChangePowerStatusUseCase,
     private val powerOnUseCase: PowerOnUseCase
 ) : ViewModel() {
-    private val _uiState = MutableStateFlow(TurnOnUiState())
-    val uiState : StateFlow<TurnOnUiState> = _uiState
+    private val _snackbarFlow = MutableSharedFlow<String>()
+    val snackbarFlow: SharedFlow<String> = _snackbarFlow
 
-    fun getAllDeviceAndSelectedDevice() {
-        viewModelScope.launch {
-            val getIndexFlow = getSelectedIndexUseCase.invoke()
-            val getAllDeviceFlow = getAllDeviceUseCase.invoke()
-            combine(getIndexFlow, getAllDeviceFlow) { indexRes, allRes ->
-                when {
-                    indexRes is FlowResult.Loading || allRes is FlowResult.Loading -> {
-                        // 로딩중
-                    }
-                    indexRes is FlowResult.Success && allRes is FlowResult.Success -> {
-                        _uiState.update {
-                            it.copy(
-                                deviceList = allRes.data,
-                                selectedDevice = allRes.data.find { device -> device.id == indexRes.data }
-                            )
-                        }
-                    }
-                    else -> {
-                        val error = indexRes as? FlowResult.Error ?: allRes as? FlowResult.Error
-                        LogUtil.e(error?.errorMsg ?: "저장한 기기 index 와 전체 기기 가져오는 과정에서 오류 발생")
-                        _uiState.update {
-                            it.copy(userMsg = error?.errorMsg ?: "저장한 기기 index 와 전체 기기 가져오는 과정에서 오류 발생")
-                        }
-                    }
-                }
-            }.collect {  }
+    // 모든 기기 정보 가져오는 Flow - 에러 관찰하여 Snackbar 띄워줌
+    private val _getAllDeviceFlow = getAllDeviceUseCase()
+        .onEach { result ->
+            if(result is FlowResult.Error) {
+                showSnackbarMsg(result.errorMsg)
+            }
         }
-    }
+    private val _getCurrentUrlStatusFlow = getCurrentUrlStatusUseCase()
+        .onEach { result ->
+            if(result is FlowResult.Error) {
+                showSnackbarMsg(result.errorMsg)
+            }
+        }
 
-    fun setSelectedDevice(select: Device) {
+    private val _getSelectedIndexFlow = getSelectedIndexUseCase()
+        .onEach { result ->
+            if(result is FlowResult.Error) {
+                showSnackbarMsg(result.errorMsg)
+            }
+        }
+
+    val uiState : StateFlow<TurnOnUiState> = combine(
+        _getAllDeviceFlow,
+        _getSelectedIndexFlow,
+        _getCurrentUrlStatusFlow,
+    ) { allDeviceResult, selectedIndexResult, currentUrlModeResult ->
+        val internalMode = (currentUrlModeResult as? FlowResult.Success)?.data ?: false
+        val selectedIndex = (selectedIndexResult as? FlowResult.Success)?.data ?: 0L
+
+        when(allDeviceResult) {
+            is FlowResult.Success -> {
+                TurnOnUiState(
+                    isLoading = false,
+                    isInternalMode = internalMode,
+                    deviceList = allDeviceResult.data,
+                    selectedDevice = allDeviceResult.data.find { device -> device.id == selectedIndex }
+                )
+            }
+            is FlowResult.Error -> {
+                TurnOnUiState(isLoading = false)
+            }
+            is FlowResult.Loading -> {
+                TurnOnUiState(isLoading = true)
+            }
+        }
+    }.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(3000L),
+        initialValue = TurnOnUiState(isLoading = true)
+    )
+
+    fun setSelectedIndex(selectId: Long) {
         viewModelScope.launch {
-            setSelectedIndexUseCase.invoke(select.id).collect { setResult ->
+            setSelectedIndexUseCase.invoke(selectId).collect { setResult ->
                 when(setResult) {
-                    is FlowResult.Success -> {
-                        _uiState.update {
-                            it.copy(selectedDevice = select)
-                        }
-                    }
                     is FlowResult.Error -> {
                         LogUtil.e(setResult.errorMsg)
-                        _uiState.update {
-                            it.copy(userMsg = setResult.errorMsg)
-                        }
+                        showSnackbarMsg(setResult.errorMsg)
                     }
-                    is FlowResult.Loading -> {  }
+                    else -> {  }
                 }
             }
         }
     }
 
     fun powerOn() {
-        if(_uiState.value.selectedDevice!!.isPowerOn) {
+        if(uiState.value.selectedDevice!!.isPowerOn) {
             showSnackbarMsg("이미 전원이 켜져 있습니다")
             return
         }
         viewModelScope.launch {
-            with(_uiState.value) {
-                if(selectedDevice != null) {
-                    powerOnUseCase(selectedDevice.mac).collect { result ->
+            with(uiState.value) {
+                if(this != null) {
+                    powerOnUseCase(selectedDevice!!.mac).collect { result ->
                         when(result) {
                             is FlowResult.Success -> {
                                 showSnackbarMsg(msg = "${selectedDevice.alias} 의 전원을 켜는 중입니다.")
@@ -115,15 +134,25 @@ class TurnOnViewModel @Inject constructor(
         }
     }
 
-    private fun showSnackbarMsg(msg: String) {
-        _uiState.update {
-            it.copy(userMsg = msg)
+    fun changeUrlStatus(status: Boolean) {
+        viewModelScope.launch {
+            setCurrentUrlStatusUseCase(status).collect { result ->
+                when(result) {
+                    is FlowResult.Success -> {
+                        showSnackbarMsg(msg = if(status) "내부망 전환" else "외부망 전환")
+                    }
+                    is FlowResult.Error -> {
+                        showSnackbarMsg(msg = result.errorMsg)
+                    }
+                    else -> {}
+                }
+            }
         }
     }
 
-    fun clearSnackbarMsg() {
-        _uiState.update {
-            it.copy(userMsg = null)
+    private fun showSnackbarMsg(msg: String) {
+        viewModelScope.launch {
+            _snackbarFlow.emit(msg)
         }
     }
 }

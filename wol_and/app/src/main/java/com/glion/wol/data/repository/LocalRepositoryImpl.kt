@@ -10,6 +10,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -28,9 +29,11 @@ class LocalRepositoryImpl @Inject constructor(
     private val roomDs: DbDataSource,
     private val settingDs: SettingDataSource
 ) : LocalRepository {
-    override suspend fun getAllDevice(): Flow<List<Device>> = flow {
-        emit(roomDs.getAllDevice().map { it.toModel() })
-    }.flowOn(Dispatchers.IO)
+    override fun getAllDevice(): Flow<List<Device>> {
+        return roomDs.getAllDevice().map { deviceList -> // Flow 가공
+            deviceList.map { it.toModel() } // Flow 내의 데이터 Model로 변환
+        }
+    }
 
     override suspend fun changeMacAddr(id: Long, newMacAddr: String): Flow<Unit> = flow {
         roomDs.changeMacAddr(id, newMacAddr)
@@ -69,12 +72,5 @@ class LocalRepositoryImpl @Inject constructor(
 
     override suspend fun editSelectedIndex(idx: Long) {
         settingDs.editSelectIndex(idx)
-    }
-
-    override val token: Flow<String?>
-        get() = settingDs.token
-
-    override suspend fun setToken(token: String) {
-        settingDs.setToken(token)
     }
 }

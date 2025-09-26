@@ -1,11 +1,12 @@
 package com.glion.wol.di
 
-import com.glion.wol.BuildConfig
 import com.glion.wol.data.api.NeedHeaderWolService
 import com.glion.wol.data.api.NoHeaderWolService
 import com.glion.wol.data.api.RefreshTokenApi
 import com.glion.wol.data.api.datasource.ApiDataSource
 import com.glion.wol.data.api.datasource.ApiDataSourceImpl
+import com.glion.wol.data.api.interceptor.BaseUrlInterceptor
+import com.glion.wol.data.api.interceptor.logInterceptor
 import com.glion.wol.data.auth.AuthInterceptor
 import com.glion.wol.data.auth.TokenAuthenticator
 import dagger.Binds
@@ -14,7 +15,6 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import okhttp3.OkHttpClient
-import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import javax.inject.Singleton
@@ -32,10 +32,7 @@ import javax.inject.Singleton
 @Module
 @InstallIn(SingletonComponent::class)
 object NetworkModule {
-    private const val BASE_URL = BuildConfig.DDNS_OUT
-    private val logInterceptor = HttpLoggingInterceptor().apply {
-        level = if(BuildConfig.DEBUG) HttpLoggingInterceptor.Level.BODY else HttpLoggingInterceptor.Level.NONE
-    }
+    private const val PLACEHOLDER_URL = "http://localhost/"
 
     /**
      * 헤더가 필요한 네트워크 서비스 주입
@@ -43,17 +40,19 @@ object NetworkModule {
     @Singleton
     @Provides
     fun provideNeedHeaderNetworkService(
+        baseUrlInterceptor: BaseUrlInterceptor,
         authInterceptor: AuthInterceptor,
         tokenAuthenticator: TokenAuthenticator
     ) : NeedHeaderWolService {
         val okhttpClient = OkHttpClient.Builder()
             .addNetworkInterceptor(logInterceptor)
+            .addInterceptor(baseUrlInterceptor)
             .addInterceptor(authInterceptor)
             .authenticator(tokenAuthenticator) // 401 요청 가로채서 토큰 갱신
             .build()
 
         return Retrofit.Builder()
-            .baseUrl(BASE_URL)
+            .baseUrl(PLACEHOLDER_URL)
             .client(okhttpClient)
             .addConverterFactory(GsonConverterFactory.create())
             .build()
@@ -65,13 +64,16 @@ object NetworkModule {
      */
     @Singleton
     @Provides
-    fun provideNoHeaderNetworkService() : NoHeaderWolService {
+    fun provideNoHeaderNetworkService(
+        baseUrlInterceptor: BaseUrlInterceptor
+    ) : NoHeaderWolService {
         val okhttpClient = OkHttpClient.Builder()
+            .addInterceptor(baseUrlInterceptor)
             .addNetworkInterceptor(logInterceptor)
             .build()
 
         return Retrofit.Builder()
-            .baseUrl(BASE_URL)
+            .baseUrl(PLACEHOLDER_URL)
             .client(okhttpClient)
             .addConverterFactory(GsonConverterFactory.create())
             .build()
@@ -84,15 +86,17 @@ object NetworkModule {
     @Singleton
     @Provides
     fun provideRefreshTokenService(
+        baseUrlInterceptor: BaseUrlInterceptor,
         authInterceptor: AuthInterceptor
     ) : RefreshTokenApi {
         val okhttpClient = OkHttpClient.Builder()
             .addNetworkInterceptor(logInterceptor)
+            .addInterceptor(baseUrlInterceptor)
             .addInterceptor(authInterceptor)
             .build()
 
         return Retrofit.Builder()
-            .baseUrl(BASE_URL)
+            .baseUrl(PLACEHOLDER_URL)
             .client(okhttpClient)
             .addConverterFactory(GsonConverterFactory.create())
             .build()

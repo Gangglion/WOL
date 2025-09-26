@@ -5,6 +5,7 @@ import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.Query
 import com.glion.wol.data.db.entity.DeviceEntity
+import kotlinx.coroutines.flow.Flow
 
 /**
  * Project : WOL
@@ -19,7 +20,7 @@ import com.glion.wol.data.db.entity.DeviceEntity
 @Dao
 interface DeviceDao {
     @Query("SELECT * FROM device")
-    fun getAllDevice(): List<DeviceEntity>
+    fun getAllDevice(): Flow<List<DeviceEntity>>
 
     @Query("UPDATE device SET mac_addr = :newMacAddr WHERE id LIKE :id")
     fun changeMacAddr(id: Long, newMacAddr: String)

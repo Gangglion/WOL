@@ -80,10 +80,9 @@ fun EditScreen(
         uiState = uiState
     )
 
-    uiState.userMsg?.let { message ->
-        LaunchedEffect(Unit) {
-            sbHost.showSnackbar(message)
-            viewModel.clearSnackbarMsg()
+    LaunchedEffect(Unit) {
+        viewModel.snackbarFlow.collect { msg ->
+            sbHost.showSnackbar(msg)
         }
     }
 }

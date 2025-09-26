@@ -14,7 +14,7 @@ import kotlinx.coroutines.flow.Flow
  * Copyright @2025 Gangglion. All rights reserved
  */
 interface LocalRepository {
-    suspend fun getAllDevice() : Flow<List<Device>>
+    fun getAllDevice() : Flow<List<Device>>
 
     suspend fun changeMacAddr(id: Long, newMacAddr: String) : Flow<Unit>
 
@@ -32,11 +32,4 @@ interface LocalRepository {
      * 선택한 index 수정 - 일회성 동작으로 반환값 없음
      */
     suspend fun editSelectedIndex(idx: Long)
-
-    val token: Flow<String?>
-
-    /**
-     * 토큰 값 변경 일회성 동작 - 반환값 없음
-     */
-    suspend fun setToken(token: String)
 }
