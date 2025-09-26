@@ -1,10 +1,10 @@
 package com.glion.wol.data.repository
 
+import com.glion.wol.data.api.data.RequestEncryptedCommon
 import com.glion.wol.data.api.data.RequestExchangeKey
-import com.glion.wol.data.api.data.RequestWolStart
 import com.glion.wol.data.api.datasource.ApiDataSource
 import com.glion.wol.data.mapper.toModel
-import com.glion.wol.domain.model.remote.WolResult
+import com.glion.wol.domain.model.remote.CommonResult
 import com.glion.wol.domain.repository.RemoteRepository
 import com.glion.wol.util.b64DecodeByteArray
 import com.glion.wol.util.b64Encode
@@ -49,8 +49,8 @@ class RemoteRepositoryImpl @Inject constructor(
         emit(body.value)
     }.flowOn(Dispatchers.IO)
 
-    override suspend fun startDevice(mac: String, iv: String): Flow<WolResult> = flow {
-        val request = RequestWolStart(
+    override suspend fun startDevice(mac: String, iv: String): Flow<CommonResult> = flow {
+        val request = RequestEncryptedCommon(
             encryptedData = mac,
             iv = iv
         )

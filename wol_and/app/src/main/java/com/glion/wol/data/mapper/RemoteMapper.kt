@@ -1,7 +1,7 @@
 package com.glion.wol.data.mapper
 
-import com.glion.wol.data.api.data.ResponseWolStart
-import com.glion.wol.domain.model.remote.WolResult
+import com.glion.wol.data.api.data.ResponseCommon
+import com.glion.wol.domain.model.remote.CommonResult
 
 /**
  * Project : WOL
@@ -14,7 +14,7 @@ import com.glion.wol.domain.model.remote.WolResult
  * Copyright @2025 Gangglion. All rights reserved
  */
 
-fun ResponseWolStart.toModel() = WolResult(
+fun ResponseCommon.toModel() = CommonResult(
     result = this.result,
     message = this.message
 )

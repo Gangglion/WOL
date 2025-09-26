@@ -45,11 +45,6 @@ class LocalRepositoryImpl @Inject constructor(
         emit(Unit)
     }.flowOn(Dispatchers.IO)
 
-    override suspend fun changePowerStatus(macAddr: String, status: Boolean): Flow<Unit> = flow {
-        roomDs.changePowerStatus(macAddr, status)
-        emit(Unit)
-    }.flowOn(Dispatchers.IO)
-
     override suspend fun insertDevice(vararg devices: Device): Flow<Unit> = flow {
         roomDs.insertDevice(*devices.map { it.toEntity() }.toTypedArray())
         emit(Unit)

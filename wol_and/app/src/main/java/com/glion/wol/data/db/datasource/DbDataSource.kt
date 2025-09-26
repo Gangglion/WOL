@@ -16,6 +16,8 @@ import kotlinx.coroutines.flow.Flow
 interface DbDataSource {
     fun getAllDevice(): Flow<List<DeviceEntity>>
 
+    suspend fun getAlias(mac: String) : String?
+
     suspend fun changeMacAddr(id: Long, newMacAddr: String)
 
     suspend fun changeAlias(id: Long, newAlias: String)

@@ -6,11 +6,11 @@ package com.glion.wol.data.api.data
  * Created by glion on 2025-09-22
  *
  * Description:
- * - WOL API Request
+ * - 암호화된 데이터 API Request
  *
  * Copyright @2025 Gangglion. All rights reserved
  */
-data class RequestWolStart(
+data class RequestEncryptedCommon(
     val encryptedData: String,
     val iv: String
 )

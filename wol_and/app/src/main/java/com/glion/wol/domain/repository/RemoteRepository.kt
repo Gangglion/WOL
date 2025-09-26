@@ -1,6 +1,6 @@
 package com.glion.wol.domain.repository
 
-import com.glion.wol.domain.model.remote.WolResult
+import com.glion.wol.domain.model.remote.CommonResult
 import kotlinx.coroutines.flow.Flow
 
 /**
@@ -25,5 +25,5 @@ interface RemoteRepository {
 
     suspend fun refreshToken() : Flow<String>
 
-    suspend fun startDevice(mac: String, iv: String) : Flow<WolResult>
+    suspend fun startDevice(mac: String, iv: String) : Flow<CommonResult>
 }

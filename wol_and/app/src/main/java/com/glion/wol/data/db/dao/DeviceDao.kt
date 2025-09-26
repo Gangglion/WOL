@@ -22,6 +22,9 @@ interface DeviceDao {
     @Query("SELECT * FROM device")
     fun getAllDevice(): Flow<List<DeviceEntity>>
 
+    @Query("SELECT alias FROM DEVICE WHERE mac_addr LIKE :macAddr LIMIT 1")
+    fun getAlias(macAddr: String) : String?
+
     @Query("UPDATE device SET mac_addr = :newMacAddr WHERE id LIKE :id")
     fun changeMacAddr(id: Long, newMacAddr: String)
 

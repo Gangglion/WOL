@@ -5,12 +5,12 @@ import com.glion.wol.BuildConfig
 import com.glion.wol.data.api.NeedHeaderWolService
 import com.glion.wol.data.api.NoHeaderWolService
 import com.glion.wol.data.api.RefreshTokenApi
+import com.glion.wol.data.api.data.RequestEncryptedCommon
 import com.glion.wol.data.api.data.RequestExchangeKey
 import com.glion.wol.data.api.data.RequestToken
-import com.glion.wol.data.api.data.RequestWolStart
+import com.glion.wol.data.api.data.ResponseCommon
 import com.glion.wol.data.api.data.ResponseExchangeKey
 import com.glion.wol.data.api.data.ResponseToken
-import com.glion.wol.data.api.data.ResponseWolStart
 import com.glion.wol.util.b64Encode
 import javax.inject.Inject
 
@@ -60,7 +60,23 @@ class ApiDataSourceImpl @Inject constructor(
         }
     }
 
-    override suspend fun startDevice(body: RequestWolStart): ResponseWolStart {
+    override suspend fun sendPushToken(fcmToken: String): ResponseCommon {
+        val encrypted = fcmToken.encryptExternalAES()
+        val b64EncodedFcmToken = encrypted.first.b64Encode()
+        val b64EncodedIv = encrypted.second.b64Encode()
+        val body = RequestEncryptedCommon(
+            encryptedData = b64EncodedFcmToken,
+            iv = b64EncodedIv
+        )
+        val response = needHeaderApi.sendPushToken(body)
+        if(response.isSuccessful) {
+            return response.body() ?: throw NullPointerException("Body is Null")
+        } else {
+            throw Exception("Network Error :: $response")
+        }
+    }
+
+    override suspend fun startDevice(body: RequestEncryptedCommon): ResponseCommon {
         val response = needHeaderApi.startDevice(body)
         if(response.isSuccessful) {
             return response.body() ?: throw NullPointerException("Body is Null")

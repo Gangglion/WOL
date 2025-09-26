@@ -1,7 +1,7 @@
 package com.glion.wol.data.api
 
-import com.glion.wol.data.api.data.RequestWolStart
-import com.glion.wol.data.api.data.ResponseWolStart
+import com.glion.wol.data.api.data.RequestEncryptedCommon
+import com.glion.wol.data.api.data.ResponseCommon
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.POST
@@ -17,6 +17,9 @@ import retrofit2.http.POST
  * Copyright @2025 Gangglion. All rights reserved
  */
 interface NeedHeaderWolService {
+    @POST("fcm/sendPushToken")
+    suspend fun sendPushToken(@Body body: RequestEncryptedCommon) : Response<ResponseCommon>
+
     @POST("wol/start")
-    suspend fun startDevice(@Body body: RequestWolStart): Response<ResponseWolStart>
+    suspend fun startDevice(@Body body: RequestEncryptedCommon): Response<ResponseCommon>
 }

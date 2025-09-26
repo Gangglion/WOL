@@ -20,8 +20,6 @@ interface LocalRepository {
 
     suspend fun changeAlias(id: Long, newAlias: String) : Flow<Unit>
 
-    suspend fun changePowerStatus(macAddr: String, status: Boolean) : Flow<Unit>
-
     suspend fun insertDevice(vararg devices: Device) : Flow<Unit>
 
     suspend fun deleteDevice(device: Device) : Flow<Boolean>

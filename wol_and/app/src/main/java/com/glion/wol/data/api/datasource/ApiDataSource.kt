@@ -1,10 +1,10 @@
 package com.glion.wol.data.api.datasource
 
+import com.glion.wol.data.api.data.RequestEncryptedCommon
 import com.glion.wol.data.api.data.RequestExchangeKey
-import com.glion.wol.data.api.data.RequestWolStart
+import com.glion.wol.data.api.data.ResponseCommon
 import com.glion.wol.data.api.data.ResponseExchangeKey
 import com.glion.wol.data.api.data.ResponseToken
-import com.glion.wol.data.api.data.ResponseWolStart
 
 /**
  * Project : WOL
@@ -33,7 +33,12 @@ interface ApiDataSource {
     suspend fun refreshToken() : ResponseToken
 
     /**
+     * 푸시 토큰 전송
+     */
+    suspend fun sendPushToken(fcmToken: String) : ResponseCommon
+
+    /**
      * 기기 전원 켜기
      */
-    suspend fun startDevice(body: RequestWolStart) : ResponseWolStart
+    suspend fun startDevice(body: RequestEncryptedCommon) : ResponseCommon
 }

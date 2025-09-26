@@ -8,6 +8,7 @@ plugins {
     id("com.google.devtools.ksp")
     id("com.google.dagger.hilt.android")
     id("org.jetbrains.kotlin.plugin.compose")
+    id("com.google.gms.google-services")
 }
 
 val localProperties = Properties()
@@ -102,6 +103,8 @@ dependencies {
     implementation(libs.hilt.android)
     ksp(libs.hilt.android.compiler)
     implementation(libs.androidx.hilt.navigation.compose)
+    // FCM
+    implementation(platform(libs.firebase.bom))
 
     // test
     testImplementation(libs.junit)

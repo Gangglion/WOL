@@ -22,6 +22,10 @@ class DbDataSourceImpl @Inject constructor(
         return dao.getAllDevice()
     }
 
+    override suspend fun getAlias(mac: String): String? {
+        return dao.getAlias(mac)
+    }
+
     override suspend fun changeMacAddr(id: Long, newMacAddr: String) {
         dao.changeMacAddr(id, newMacAddr)
     }

@@ -10,7 +10,7 @@ package com.glion.wol.domain.model.remote
  *
  * Copyright @2025 Gangglion. All rights reserved
  */
-data class WolResult(
+data class CommonResult(
     val result: Boolean,
     val message: String
 )

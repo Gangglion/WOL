@@ -12,7 +12,7 @@ package com.glion.wol.data.api.data
  *
  * Copyright @2025 Gangglion. All rights reserved
  */
-data class ResponseWolStart(
+data class ResponseCommon(
     val result: Boolean,
     val message: String
 )
