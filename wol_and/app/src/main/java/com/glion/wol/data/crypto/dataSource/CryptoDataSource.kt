@@ -14,7 +14,7 @@ interface CryptoDataSource {
     /**
      * RSA 키 메모리에 로드 or 없으면 생성하여 메모리에 로드
      */
-    fun loadOrCreateRSAKey()
+    suspend fun loadOrCreateRSAKey()
 
     /**
      * RSA 공개키 리턴

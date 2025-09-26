@@ -5,9 +5,13 @@ import androidx.lifecycle.viewModelScope
 import com.glion.wol.domain.usecase.splash.InitializeUseCase
 import com.glion.wol.util.FlowResult
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -23,44 +27,44 @@ import javax.inject.Inject
  */
 @HiltViewModel
 class WolSplashViewModel @Inject constructor(
-    private val initializeUseCase: InitializeUseCase
+    initializeUseCase: InitializeUseCase
 ) : ViewModel() {
-    private val _uiState = MutableStateFlow(WolSplashUiState())
-    val uiState: StateFlow<WolSplashUiState> = _uiState
+    private val _snackbarEvent = MutableSharedFlow<String>()
+    val snackbarEvent: SharedFlow<String> = _snackbarEvent
 
-    init {
-        initializeApp()
-    }
+    // 화면 이동 상태
+    private val _navigateEvent = MutableSharedFlow<Boolean>()
+    val navigateEvent: SharedFlow<Boolean> = _navigateEvent
 
-    private fun initializeApp() {
-        viewModelScope.launch {
-            initializeUseCase().collect { result ->
-                when(result) {
-                    is FlowResult.Success -> {
-                        _uiState.update {
-                            it.copy(goMain = true)
-                        }
-                    }
-                    is FlowResult.Error -> {
-                        setSnackbarMsg(result.errorMsg)
-                    }
-                    is FlowResult.Loading -> {
+    private val _initializeFlow = initializeUseCase()
+        .onEach { result ->
+            if(result is FlowResult.Error) {
+                setSnackbarMsg(result.errorMsg)
+            }
+        }
 
-                    }
+    val uiState: StateFlow<WolSplashUiState> = _initializeFlow
+        .map { result ->
+            when(result) {
+                is FlowResult.Success -> {
+                    if(result.data) _navigateEvent.emit(true)
+                    WolSplashUiState(isLoading = false)
+                }
+                else -> {
+                    WolSplashUiState(isLoading = true)
                 }
             }
         }
-    }
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(500L),
+            initialValue = WolSplashUiState(isLoading = true)
+        )
+
 
     fun setSnackbarMsg(msg: String) {
-        _uiState.update {
-            it.copy(errorMsg = msg)
-        }
-    }
-
-    fun clearSnackbarMsg() {
-        _uiState.update {
-            it.copy(errorMsg = null)
+        viewModelScope.launch {
+            _snackbarEvent.emit(msg)
         }
     }
 }

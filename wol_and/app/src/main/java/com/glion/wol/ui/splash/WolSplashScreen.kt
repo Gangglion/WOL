@@ -13,7 +13,6 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -41,17 +40,19 @@ fun WolSplashScreen(
     navigateToMain: () -> Unit,
     viewModel: WolSplashViewModel = hiltViewModel()
 ) {
-    val uiState by viewModel.uiState.collectAsState()
+    // stateFlow 는 collectAsState() 해주지 않으면 시작하지 않음
+    viewModel.uiState.collectAsState()
 
-    uiState.errorMsg?.let { message ->
-        LaunchedEffect(Unit) {
+    LaunchedEffect(Unit) {
+        viewModel.snackbarEvent.collect { message ->
             sbHost.showSnackbar(message)
-            viewModel.clearSnackbarMsg()
         }
     }
 
-    LaunchedEffect(uiState.goMain) {
-        if(uiState.goMain) navigateToMain()
+    LaunchedEffect(Unit) {
+        viewModel.navigateEvent.collect {
+            if(it) navigateToMain()
+        }
     }
 
     WolSplashContent()

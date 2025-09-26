@@ -16,7 +16,7 @@ interface CryptoRepository {
     /**
      * RSA 키 로드(없으면 생성) - Default
      */
-    suspend fun loadOrCreateRSAKey() : Flow<Unit>
+    fun loadOrCreateRSAKey() : Flow<Unit>
 
     /**
      * RSA 공개키 리턴

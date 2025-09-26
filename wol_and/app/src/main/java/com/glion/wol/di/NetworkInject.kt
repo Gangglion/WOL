@@ -32,7 +32,8 @@ import javax.inject.Singleton
 @Module
 @InstallIn(SingletonComponent::class)
 object NetworkModule {
-    private const val PLACEHOLDER_URL = "http://localhost/"
+    // 요청이 들어왔을때 설정된 URL 에 따라 교체됨.
+    private const val PLACEHOLDER_URL = "http://localhost/api/"
 
     /**
      * 헤더가 필요한 네트워크 서비스 주입

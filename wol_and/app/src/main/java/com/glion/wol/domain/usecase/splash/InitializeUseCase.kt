@@ -28,7 +28,7 @@ class InitializeUseCase @Inject constructor(
     private val getTokenUseCase: GetTokenUseCase
 ) {
     @OptIn(ExperimentalCoroutinesApi::class)
-    suspend operator fun invoke() : Flow<FlowResult<Boolean>> {
+    operator fun invoke() : Flow<FlowResult<Boolean>> {
         // 1. 키 준비 UseCase 호출
         return initializeKeyUseCase()
             .flatMapConcat {

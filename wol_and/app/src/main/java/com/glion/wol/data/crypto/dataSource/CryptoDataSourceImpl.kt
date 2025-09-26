@@ -20,7 +20,7 @@ import javax.inject.Inject
  * Copyright @2025 Gangglion. All rights reserved
  */
 class CryptoDataSourceImpl @Inject constructor() : CryptoDataSource {
-    override fun loadOrCreateRSAKey() {
+    override suspend fun loadOrCreateRSAKey() {
         RSAUtils.getOrCreateRSAKeyPair()
     }
 

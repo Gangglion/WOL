@@ -23,7 +23,7 @@ import javax.inject.Singleton
 class CryptoRepositoryImpl @Inject constructor(
     private val dataSource: CryptoDataSource
 ) : CryptoRepository {
-    override suspend fun loadOrCreateRSAKey(): Flow<Unit> = flow {
+    override fun loadOrCreateRSAKey(): Flow<Unit> = flow {
         dataSource.loadOrCreateRSAKey()
         // 성공적으로 완료되었음을 알림
         emit(Unit)
