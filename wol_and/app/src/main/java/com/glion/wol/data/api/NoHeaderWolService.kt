@@ -1,9 +1,8 @@
 package com.glion.wol.data.api
 
+import com.glion.wol.data.api.data.RequestEncryptedCommon
 import com.glion.wol.data.api.data.RequestExchangeKey
-import com.glion.wol.data.api.data.RequestToken
-import com.glion.wol.data.api.data.ResponseExchangeKey
-import com.glion.wol.data.api.data.ResponseToken
+import com.glion.wol.data.api.data.ResponseEncryptedCommon
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.POST
@@ -20,8 +19,8 @@ import retrofit2.http.POST
  */
 interface NoHeaderWolService {
     @POST("auth/exchangeKey")
-    suspend fun exchangeKey(@Body body: RequestExchangeKey) : Response<ResponseExchangeKey>
+    suspend fun exchangeKey(@Body body: RequestExchangeKey) : Response<ResponseEncryptedCommon>
 
     @POST("auth/getToken")
-    suspend fun getToken(@Body body: RequestToken) : Response<ResponseToken>
+    suspend fun getToken(@Body body: RequestEncryptedCommon) : Response<ResponseEncryptedCommon>
 }

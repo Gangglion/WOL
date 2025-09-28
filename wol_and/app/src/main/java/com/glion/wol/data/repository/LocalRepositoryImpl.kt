@@ -45,8 +45,8 @@ class LocalRepositoryImpl @Inject constructor(
         emit(Unit)
     }.flowOn(Dispatchers.IO)
 
-    override suspend fun insertDevice(vararg devices: Device): Flow<Unit> = flow {
-        roomDs.insertDevice(*devices.map { it.toEntity() }.toTypedArray())
+    override suspend fun insertDevice(vararg device: Device): Flow<Unit> = flow {
+        roomDs.insertDevice(*device.map { it.toEntity() }.toTypedArray())
         emit(Unit)
     }.flowOn(Dispatchers.IO)
 

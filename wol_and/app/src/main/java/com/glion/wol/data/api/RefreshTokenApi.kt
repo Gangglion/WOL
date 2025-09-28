@@ -1,6 +1,6 @@
 package com.glion.wol.data.api
 
-import com.glion.wol.data.api.data.ResponseToken
+import com.glion.wol.data.api.data.ResponseEncryptedCommon
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.POST
@@ -17,5 +17,5 @@ import retrofit2.http.POST
  */
 interface RefreshTokenApi {
     @POST("auth/refreshToken")
-    suspend fun refreshToken(@Body body: String = "") : Response<ResponseToken>
+    suspend fun refreshToken(@Body body: String = "") : Response<ResponseEncryptedCommon>
 }

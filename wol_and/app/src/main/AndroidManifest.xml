@@ -40,7 +40,7 @@
             android:resource="@mipmap/ic_launcher_round" />
         <meta-data
             android:name="com.google.firebase.messaging.default_notification_color"
-            android:resource="#002D2F" />
+            android:resource="@color/fcm_color" />
     </application>
 
 </manifest>

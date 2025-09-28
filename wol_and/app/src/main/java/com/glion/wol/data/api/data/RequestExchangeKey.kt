@@ -7,6 +7,7 @@ package com.glion.wol.data.api.data
  *
  * Description:
  * - 키 교환 Request
+ * @param base64EncodedRsaPublicKey RSA Public Key encoded in Base64
  *
  * Copyright @2025 Gangglion. All rights reserved
  */

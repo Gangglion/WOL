@@ -21,9 +21,22 @@ interface RemoteRepository {
      */
     suspend fun exchangeKey(rsaPublicKey: ByteArray) : Flow<ByteArray>
 
+    /**
+     * AccessToken 얻기
+     * @return AccessToken
+     */
     suspend fun getToken() : Flow<String>
 
+    /**
+     * AccessToken 갱신
+     * @return 새로운 AccessToken
+     */
     suspend fun refreshToken() : Flow<String>
 
-    suspend fun startDevice(mac: String, iv: String) : Flow<CommonResult>
+    /**
+     * 기기 전원 켜기
+     * @param mac 전원을 켤 맥 주소
+     * @return 결과 공통 객체
+     */
+    fun startDevice(mac: String) : Flow<CommonResult>
 }

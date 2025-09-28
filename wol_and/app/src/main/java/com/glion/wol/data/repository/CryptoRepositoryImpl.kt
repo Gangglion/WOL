@@ -47,16 +47,4 @@ class CryptoRepositoryImpl @Inject constructor(
     override fun isExistAESKey(): Flow<Boolean> = flow {
         emit(dataSource.isExistAESKey())
     }.flowOn(Dispatchers.Default)
-
-    override fun decryptAES(encrypted: ByteArray): Flow<ByteArray> = flow {
-        emit(dataSource.decryptRSAByteArray(encrypted))
-    }.flowOn(Dispatchers.Default)
-
-    override fun encryptAES(origin: String): Flow<Pair<ByteArray, ByteArray>> = flow {
-        emit(dataSource.encryptAES(origin))
-    }.flowOn(Dispatchers.Default)
-
-    override fun decryptAES(encrypted: ByteArray, iv: ByteArray): Flow<String> = flow {
-        emit(dataSource.decryptAES(encrypted, iv))
-    }.flowOn(Dispatchers.Default)
 }

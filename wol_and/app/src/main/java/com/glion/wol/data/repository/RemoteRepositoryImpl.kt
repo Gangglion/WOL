@@ -1,13 +1,10 @@
 package com.glion.wol.data.repository
 
-import com.glion.wol.data.api.data.RequestEncryptedCommon
-import com.glion.wol.data.api.data.RequestExchangeKey
 import com.glion.wol.data.api.datasource.ApiDataSource
 import com.glion.wol.data.mapper.toModel
 import com.glion.wol.domain.model.remote.CommonResult
 import com.glion.wol.domain.repository.RemoteRepository
 import com.glion.wol.util.b64DecodeByteArray
-import com.glion.wol.util.b64Encode
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
@@ -30,9 +27,8 @@ class RemoteRepositoryImpl @Inject constructor(
     private val apiDs: ApiDataSource
 ) : RemoteRepository {
     override suspend fun exchangeKey(rsaPublicKey: ByteArray): Flow<ByteArray> = flow {
-        val request = RequestExchangeKey(base64EncodedRsaPublicKey = rsaPublicKey.b64Encode())
         // 키 교환 API 호출
-        val body = apiDs.exchangeKey(request)
+        val body = apiDs.exchangeKey(rsaPublicKey)
         // body 로 넘어온 RSA 키로 암호화된 AES 키 base64 디코딩
         val encryptedAesKey = body.value.b64DecodeByteArray()
         // 암호화된 키 값 그대로 리턴
@@ -49,12 +45,8 @@ class RemoteRepositoryImpl @Inject constructor(
         emit(body.value)
     }.flowOn(Dispatchers.IO)
 
-    override suspend fun startDevice(mac: String, iv: String): Flow<CommonResult> = flow {
-        val request = RequestEncryptedCommon(
-            encryptedData = mac,
-            iv = iv
-        )
-        val body = apiDs.startDevice(request).toModel()
+    override fun startDevice(mac: String): Flow<CommonResult> = flow {
+        val body = apiDs.startDevice(mac).toModel()
         emit(body)
     }.flowOn(Dispatchers.IO)
 }

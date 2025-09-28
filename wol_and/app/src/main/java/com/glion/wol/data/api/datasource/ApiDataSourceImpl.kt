@@ -7,10 +7,8 @@ import com.glion.wol.data.api.NoHeaderWolService
 import com.glion.wol.data.api.RefreshTokenApi
 import com.glion.wol.data.api.data.RequestEncryptedCommon
 import com.glion.wol.data.api.data.RequestExchangeKey
-import com.glion.wol.data.api.data.RequestToken
 import com.glion.wol.data.api.data.ResponseCommon
-import com.glion.wol.data.api.data.ResponseExchangeKey
-import com.glion.wol.data.api.data.ResponseToken
+import com.glion.wol.data.api.data.ResponseEncryptedCommon
 import com.glion.wol.util.b64Encode
 import javax.inject.Inject
 
@@ -29,7 +27,8 @@ class ApiDataSourceImpl @Inject constructor(
     private val needHeaderApi: NeedHeaderWolService,
     private val refreshTokenApi: RefreshTokenApi
 ) : ApiDataSource {
-    override suspend fun exchangeKey(body: RequestExchangeKey): ResponseExchangeKey {
+    override suspend fun exchangeKey(rsaPublicKey: ByteArray): ResponseEncryptedCommon {
+        val body = RequestExchangeKey(base64EncodedRsaPublicKey = rsaPublicKey.b64Encode())
         val response = noHeaderApi.exchangeKey(body)
         if(response.isSuccessful) {
             return response.body() ?: throw NullPointerException("Body is Null")
@@ -38,11 +37,11 @@ class ApiDataSourceImpl @Inject constructor(
         }
     }
 
-    override suspend fun getToken(): ResponseToken {
+    override suspend fun getToken(): ResponseEncryptedCommon {
         val aesEncryptedAppKey = (BuildConfig.APP_KEY).encryptExternalAES()
         val b64EncodedAppKey = aesEncryptedAppKey.first.b64Encode()
         val b64EncodedIv = aesEncryptedAppKey.second.b64Encode()
-        val body = RequestToken(appKey = b64EncodedAppKey, iv = b64EncodedIv)
+        val body = RequestEncryptedCommon(encryptedDataBase64 = b64EncodedAppKey, ivBase64 = b64EncodedIv)
         val response = noHeaderApi.getToken(body)
         if(response.isSuccessful) {
             return response.body() ?: throw NullPointerException("Body is Null")
@@ -51,7 +50,7 @@ class ApiDataSourceImpl @Inject constructor(
         }
     }
 
-    override suspend fun refreshToken(): ResponseToken {
+    override suspend fun refreshToken(): ResponseEncryptedCommon {
         val response = refreshTokenApi.refreshToken()
         if(response.isSuccessful) {
             return response.body() ?: throw NullPointerException("Body is Null")
@@ -65,8 +64,8 @@ class ApiDataSourceImpl @Inject constructor(
         val b64EncodedFcmToken = encrypted.first.b64Encode()
         val b64EncodedIv = encrypted.second.b64Encode()
         val body = RequestEncryptedCommon(
-            encryptedData = b64EncodedFcmToken,
-            iv = b64EncodedIv
+            encryptedDataBase64 = b64EncodedFcmToken,
+            ivBase64 = b64EncodedIv
         )
         val response = needHeaderApi.sendPushToken(body)
         if(response.isSuccessful) {
@@ -76,7 +75,12 @@ class ApiDataSourceImpl @Inject constructor(
         }
     }
 
-    override suspend fun startDevice(body: RequestEncryptedCommon): ResponseCommon {
+    override suspend fun startDevice(mac: String): ResponseCommon {
+        val encryptedMac = mac.encryptExternalAES()
+        val body = RequestEncryptedCommon(
+            encryptedDataBase64 = encryptedMac.first.b64Encode(),
+            ivBase64 = encryptedMac.second.b64Encode()
+        )
         val response = needHeaderApi.startDevice(body)
         if(response.isSuccessful) {
             return response.body() ?: throw NullPointerException("Body is Null")
