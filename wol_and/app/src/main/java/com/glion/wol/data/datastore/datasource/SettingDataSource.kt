@@ -19,4 +19,6 @@ interface SettingDataSource {
     suspend fun editSelectIndex(idx: Long)
     val token: Flow<String?>
     suspend fun setToken(token: String)
+    val fcmToken: Flow<String?>
+    suspend fun setFcmToken(fcmToken: String)
 }

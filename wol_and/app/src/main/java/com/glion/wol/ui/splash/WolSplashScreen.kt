@@ -1,5 +1,7 @@
 package com.glion.wol.ui.splash
 
+import android.Manifest
+import android.os.Build
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.RepeatMode
@@ -13,7 +15,10 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
@@ -22,6 +27,9 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.glion.wol.R
+import com.google.accompanist.permissions.ExperimentalPermissionsApi
+import com.google.accompanist.permissions.isGranted
+import com.google.accompanist.permissions.rememberPermissionState
 
 /**
  * Project : WOL
@@ -34,6 +42,7 @@ import com.glion.wol.R
  * Copyright @2025 Gangglion. All rights reserved
  */
 
+@OptIn(ExperimentalPermissionsApi::class)
 @Composable
 fun WolSplashScreen(
     sbHost: SnackbarHostState,
@@ -41,17 +50,44 @@ fun WolSplashScreen(
     viewModel: WolSplashViewModel = hiltViewModel()
 ) {
     // stateFlow 는 collectAsState() 해주지 않으면 시작하지 않음
-    viewModel.uiState.collectAsState()
+    val uiState by viewModel.uiState.collectAsState()
 
-    LaunchedEffect(Unit) {
-        viewModel.snackbarEvent.collect { message ->
-            sbHost.showSnackbar(message)
+    if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+        val permissionState = rememberPermissionState(
+            permission = Manifest.permission.POST_NOTIFICATIONS
+        )
+
+        // 권한 요청을 반복하지 않도록 방지하는 Flag
+        val permissionRequested = rememberSaveable { mutableStateOf(false) }
+        LaunchedEffect(uiState.isInitialize, permissionState.status) {
+            // 1. 초기화 작업이 끝났는지 확인
+            if(uiState.isInitialize) {
+                // 권한이 이미 허용된 상태
+                if(permissionState.status.isGranted) {
+                    navigateToMain()
+                } else {
+                    // 권한이 없는 상태
+                    if(!permissionRequested.value) {
+                        // 아직 권한 요청을 한 적이 없을때 -> 요청
+                        permissionState.launchPermissionRequest()
+                        // 권한 요청했음을 저장
+                        permissionRequested.value = true
+                    } else {
+                        // 이미 요청했는데 거부한 상태
+                        viewModel.onNotificationPermissionDenied()
+                    }
+                }
+            }
+        }
+    } else { // Android 13 미만 기기 - 권한 요청 필요 없음
+        LaunchedEffect(uiState.isInitialize) {
+            navigateToMain()
         }
     }
 
     LaunchedEffect(Unit) {
-        viewModel.navigateEvent.collect {
-            if(it) navigateToMain()
+        viewModel.snackbarEvent.collect { message ->
+            sbHost.showSnackbar(message)
         }
     }
 

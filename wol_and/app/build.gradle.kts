@@ -105,6 +105,9 @@ dependencies {
     implementation(libs.androidx.hilt.navigation.compose)
     // FCM
     implementation(platform(libs.firebase.bom))
+    implementation(libs.firebase.analytics)
+    implementation(libs.firebase.messaging)
+    implementation("com.google.accompanist:accompanist-permissions:0.37.3")
 
     // test
     testImplementation(libs.junit)

@@ -2,6 +2,7 @@ package com.glion.wol.ui.splash
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.glion.wol.domain.usecase.common.TokenSyncUseCase
 import com.glion.wol.domain.usecase.splash.InitializeUseCase
 import com.glion.wol.util.FlowResult
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -27,14 +28,11 @@ import javax.inject.Inject
  */
 @HiltViewModel
 class WolSplashViewModel @Inject constructor(
-    initializeUseCase: InitializeUseCase
+    initializeUseCase: InitializeUseCase,
+    private val tokenSyncUseCase: TokenSyncUseCase
 ) : ViewModel() {
     private val _snackbarEvent = MutableSharedFlow<String>()
     val snackbarEvent: SharedFlow<String> = _snackbarEvent
-
-    // 화면 이동 상태
-    private val _navigateEvent = MutableSharedFlow<Boolean>()
-    val navigateEvent: SharedFlow<Boolean> = _navigateEvent
 
     private val _initializeFlow = initializeUseCase()
         .onEach { result ->
@@ -47,8 +45,12 @@ class WolSplashViewModel @Inject constructor(
         .map { result ->
             when(result) {
                 is FlowResult.Success -> {
-                    if(result.data) _navigateEvent.emit(true)
-                    WolSplashUiState(isLoading = false)
+                    if(result.data) {
+                        tokenSyncUseCase.startSyncToken()
+                        WolSplashUiState(isLoading = true, isInitialize = true)
+                    } else {
+                        WolSplashUiState(isLoading = true)
+                    }
                 }
                 else -> {
                     WolSplashUiState(isLoading = true)
@@ -61,6 +63,12 @@ class WolSplashViewModel @Inject constructor(
             initialValue = WolSplashUiState(isLoading = true)
         )
 
+    /**
+     * 권한이 거부되었을때
+     */
+    fun onNotificationPermissionDenied() {
+        setSnackbarMsg("알림 권한을 허용해주어야 합니다.")
+    }
 
     fun setSnackbarMsg(msg: String) {
         viewModelScope.launch {

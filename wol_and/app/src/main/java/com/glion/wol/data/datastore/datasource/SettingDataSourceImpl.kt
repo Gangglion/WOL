@@ -4,6 +4,7 @@ import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
 import com.glion.wol.data.datastore.CURRENT_URL
+import com.glion.wol.data.datastore.FCM_TOKEN
 import com.glion.wol.data.datastore.HEADER_TOKEN
 import com.glion.wol.data.datastore.SELECTED_INDEX
 import kotlinx.coroutines.flow.Flow
@@ -53,6 +54,17 @@ class SettingDataSourceImpl @Inject constructor(
     override suspend fun setToken(token: String) {
         ds.edit { pref ->
             pref[HEADER_TOKEN] = token
+        }
+    }
+
+    override val fcmToken: Flow<String?>
+        get() = ds.data.map { pref ->
+            pref[FCM_TOKEN]
+        }
+
+    override suspend fun setFcmToken(fcmToken: String) {
+        ds.edit { pref ->
+            pref[FCM_TOKEN] = fcmToken
         }
     }
 }

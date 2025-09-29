@@ -17,3 +17,4 @@ import androidx.datastore.preferences.core.stringPreferencesKey
 val CURRENT_URL = stringPreferencesKey("current_url")
 val SELECTED_INDEX = longPreferencesKey("selected_index")
 val HEADER_TOKEN = stringPreferencesKey("header_token")
+val FCM_TOKEN = stringPreferencesKey("fcm_token")

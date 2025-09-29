@@ -11,5 +11,6 @@ package com.glion.wol.ui.splash
  * Copyright @2025 Gangglion. All rights reserved
  */
 data class WolSplashUiState(
-    val isLoading: Boolean = false
+    val isLoading: Boolean = false,
+    val isInitialize: Boolean = false
 )
