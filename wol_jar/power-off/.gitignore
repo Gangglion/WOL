@@ -1,0 +1,29 @@
+# ## IDEs ##
+# IntelliJ IDEA
+.idea/
+*.iml
+
+# ## Build Tool - Gradle ##
+.gradle/
+build/
+
+### Kotlin ###
+.kotlin
+
+### Mac OS ###
+.DS_Store
+
+# ## Operating System Files ##
+# macOS
+.DS_Store
+# Windows
+Thumbs.db
+# Linux / Misc Editors
+*~
+
+# ## Log Files ##
+*.log
+
+# ## Local Properties ##
+# Secrets or local machine configurations
+local.properties
