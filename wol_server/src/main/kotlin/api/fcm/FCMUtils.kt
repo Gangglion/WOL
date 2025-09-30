@@ -10,7 +10,6 @@ object FCMUtils {
         private set
 
     fun setFcmToken(newToken: String) {
-        println("get newToken :: $newToken")
         fcmToken = newToken
     }
 
