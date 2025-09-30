@@ -72,11 +72,24 @@ private fun getMacAddress(): String? {
  */
 private fun sendMacAddressToServer(macAddress: String): Boolean {
     return try {
-        val client = OkHttpClient()
         val properties = Properties()
-        properties.load(FileInputStream("local.properties"))
-        val url = properties.getProperty("API_URL")
+        val classLoader = Thread.currentThread().contextClassLoader
+        val inputStream = classLoader.getResourceAsStream("local.properties")
 
+        inputStream.use { stream ->
+            if(stream == null) {
+                println("오류 : JAR 파일 내에서 local.properties 를 찾을 수 없습니다.")
+                return false
+            }
+            properties.load(stream)
+        }
+        val url = properties.getProperty("API_URL")
+        if(url.isNullOrEmpty()) {
+            println("오류 : local.properties 파일에 API_URL 이 비어있습니다.")
+            return false
+        }
+
+        val client = OkHttpClient()
         val json = """{"mac": "$macAddress", "status" : "On"}"""
         val requestBody = json.toRequestBody("application/json; charset=utf-8".toMediaType())
 
