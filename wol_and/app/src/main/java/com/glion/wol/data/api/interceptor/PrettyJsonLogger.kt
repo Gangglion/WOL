@@ -10,12 +10,12 @@ import okhttp3.logging.HttpLoggingInterceptor
 /**
  * Project : WOL
  * File : PrettyJsonLogger
- * Created by shhan on 2025-09-25
+ * Created by glion on 2025-09-25
  *
  * Description:
- * - 추후 기입
+ * - 네트워크 로그 정렬된 상태로 출력하기 위한 interceptor
  *
- * Copyright @2025 UBIPLUS. All rights reserved
+ * Copyright @2025 Gangglion. All rights reserved
  */
 class PrettyJsonLogger : HttpLoggingInterceptor.Logger {
     private val gson = GsonBuilder().setPrettyPrinting().create()

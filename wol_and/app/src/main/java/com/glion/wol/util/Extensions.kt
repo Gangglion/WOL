@@ -5,12 +5,12 @@ import java.util.Base64
 /**
  * Project : WOL
  * File : Extensions
- * Created by shhan on 2025-09-22
+ * Created by glion on 2025-09-22
  *
  * Description:
- * - 추후 기입
+ * - 확장함수 정의
  *
- * Copyright @2025 UBIPLUS. All rights reserved
+ * Copyright @2025 Gangglion. All rights reserved
  */
 
 fun ByteArray.b64Encode() = Base64.getEncoder().encodeToString(this)

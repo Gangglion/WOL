@@ -6,12 +6,12 @@ import com.glion.wol.BuildConfig
 /**
  * Project : WOL
  * File : LogUtil
- * Created by shhan on 2025-03-12
+ * Created by glion on 2025-03-12
  *
  * Description:
- * - 추후 기입
+ * - 공통 LogUtil
  *
- * Copyright @2025 UBIPLUS. All rights reserved
+ * Copyright @2025 Gangglion. All rights reserved
  */
 object LogUtil {
     const val TAG = "shhan"
