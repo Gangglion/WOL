@@ -12,8 +12,10 @@ import com.glion.wol.data.db.datasource.DbDataSourceImpl
 import com.glion.wol.data.repository.LocalRepositoryImpl
 import com.glion.wol.di.WolDatabase
 import com.glion.wol.domain.model.local.Device
-import com.glion.wol.util.FlowResult
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
@@ -22,7 +24,9 @@ import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Before
+import org.junit.Rule
 import org.junit.Test
+import org.junit.rules.TemporaryFolder
 
 /**
  * Project : WOL
@@ -38,11 +42,19 @@ class LocalRepositoryTest {
     companion object {
         const val TEST_PREFS_FILE_NAME = "test_prefs.preferences_pb"
     }
+
+    // TemporaryFolder Rule 추가: 테스트마다 고유한 임시 폴더를 생성
+    @get:Rule
+    val tempFolder = TemporaryFolder()
+
     private lateinit var db: WolDatabase
     private lateinit var deviceDao: DeviceDao
     private lateinit var roomDataSource: DbDataSourceImpl
     private lateinit var settingDataSource: SettingDataSourceImpl
-    private lateinit var repository: LocalRepositoryImpl
+    private lateinit var localRepository: LocalRepositoryImpl
+
+    // 테스트용 Coroutine Scope 변수 선언
+    private lateinit var testScope: CoroutineScope
 
     @OptIn(ExperimentalCoroutinesApi::class)
     @Before
@@ -52,40 +64,25 @@ class LocalRepositoryTest {
             context,
             WolDatabase::class.java
         ).allowMainThreadQueries().build()
+        testScope = CoroutineScope(UnconfinedTestDispatcher() + Job())
         val testDataStore: DataStore<Preferences> = PreferenceDataStoreFactory.create(
-            scope = TestScope(UnconfinedTestDispatcher()),
+            scope = testScope,
             // TestScope 는 기본적으로 StandardTestDispatcher 사용됨(명시적으로 코루틴 진행을 시켜주어야 함 - 시간 조절이 필요한 테스트 코드에서 유용)
             // UnconfinedTestDispatcher 는 즉시 실행 가능한 Dispatcher 로서, 코루틴 시작시 즉시 현재 스레드에서 실행됨. DataStore 테스트 시 flow 를 collect 하거나 first 로 값을 가져올때 유용함.
-            produceFile = { context.dataStoreFile(TEST_PREFS_FILE_NAME) }
+            produceFile = { tempFolder.newFile(TEST_PREFS_FILE_NAME) }
         )
         deviceDao = db.deviceDao()
         roomDataSource = DbDataSourceImpl(deviceDao)
         settingDataSource = SettingDataSourceImpl(testDataStore)
-        repository = LocalRepositoryImpl(roomDataSource, settingDataSource)
+        localRepository = LocalRepositoryImpl(roomDataSource, settingDataSource)
     }
 
     @After
     fun teardown() {
-        val context = InstrumentationRegistry.getInstrumentation().targetContext
-        val file = context.dataStoreFile(TEST_PREFS_FILE_NAME)
-        file.delete()
         db.close()
+        testScope.cancel()
     }
 
-
-    /**
-     * 기기 정보 저장 테스트
-     */
-    @Test
-    fun insertDevice_success_returnTrue() = runTest {
-        val device = Device(
-            mac = "Test:Mac:Addr",
-            alias = "Test",
-            isPowerOn = false
-        )
-        val result = repository.insertDevice(device).first { it is FlowResult.Success }.getOrThrow()
-        assertTrue(result)
-    }
 
     /**
      * 기기 정보 저장 후 모든 정보 조회하여 제대로 저장됬는지 테스트
@@ -97,9 +94,8 @@ class LocalRepositoryTest {
             alias = "Test",
             isPowerOn = false
         )
-        val insert = repository.insertDevice(device).first { it is FlowResult.Success }.getOrThrow()
-        assertTrue(insert)
-        val loaded = repository.getAllDevice().first { it is FlowResult.Success }.getOrThrow()
+        localRepository.insertDevice(device)
+        val loaded = localRepository.getAllDevice().first()
         assertEquals(1, loaded.size)
         assertEquals("Test", loaded[0].alias)
         assertEquals("Test:Mac:Addr", loaded[0].mac)
@@ -116,27 +112,20 @@ class LocalRepositoryTest {
             alias = "Test",
             isPowerOn = false
         )
-        val insert = repository.insertDevice(device).first { it is FlowResult.Success }.getOrThrow()
-        assertTrue(insert)
-        val loaded = repository.getAllDevice().first { it is FlowResult.Success }.getOrThrow()
+        localRepository.insertDevice(device)
+        val loaded = localRepository.getAllDevice().first()
 
         // isPowerOn 변경
-        val changeIsPowerStatus = repository.changePowerStatus(loaded[0].mac, true)
-            .first { it is FlowResult.Success }.getOrThrow()
-        assertTrue(changeIsPowerStatus)
+        localRepository.changePowerStatus(loaded[0].mac, true)
 
         // mac 주소 변경
-        val changeMac = repository.changeMacAddr(loaded[0].id, "Change:Mac:Addr")
-            .first { it is FlowResult.Success }.getOrThrow()
-        assertTrue(changeMac)
+        localRepository.changeMacAddr(loaded[0].id, "Change:Mac:Addr")
 
         // alias 변경
-        val changeAlias = repository.changeAlias(loaded[0].id, "Change")
-            .first { it is FlowResult.Success }.getOrThrow()
-        assertTrue(changeAlias)
+        localRepository.changeAlias(loaded[0].id, "Change")
 
         // 변경된 상태 검증
-        val loadedAfterChange = repository.getAllDevice().first { it is FlowResult.Success }.getOrThrow()
+        val loadedAfterChange = localRepository.getAllDevice().first()
         assertEquals(1, loadedAfterChange.size)
         assertEquals("Change", loadedAfterChange[0].alias)
         assertEquals("Change:Mac:Addr", loadedAfterChange[0].mac)
@@ -153,13 +142,16 @@ class LocalRepositoryTest {
             alias = "Test",
             isPowerOn = false
         )
-        val insert = repository.insertDevice(device).first { it is FlowResult.Success }.getOrThrow() // 삽입
-        assertTrue(insert)
-        val loadedBeforeDelete = repository.getAllDevice().first { it is FlowResult.Success }.getOrThrow() // 삽입한 뒤 DB
+        // 데이터 Insert
+        localRepository.insertDevice(device)
+        // Insert 후 데이터 조회
+        val loadedBeforeDelete = localRepository.getAllDevice().first()
         assertEquals(1, loadedBeforeDelete.size)
-        val delete = repository.deleteDevice(loadedBeforeDelete[0]).first { it is FlowResult.Success }.getOrThrow() // 삽입한 Device 객체 삭제
+        // Data 삭제
+        val delete = localRepository.deleteDevice(loadedBeforeDelete[0])
         assertTrue(delete)
-        val loadAfterDelete = repository.getAllDevice().first { it is FlowResult.Success }.getOrThrow() // 삭제 후 DB
+        // 삭제 후 DB 확인
+        val loadAfterDelete = localRepository.getAllDevice().first() // 삭제 후 DB
         assertEquals(0, loadAfterDelete.size)
     }
 
@@ -168,7 +160,7 @@ class LocalRepositoryTest {
      */
     @Test
     fun getSelectedIndex_assertEquals() = runTest {
-        val selectedIndex = repository.selectedIndex.first { it is FlowResult.Success }.getOrThrow()
+        val selectedIndex = localRepository.selectedIndex.first()
         assertEquals(0L, selectedIndex)
     }
 
@@ -177,9 +169,8 @@ class LocalRepositoryTest {
      */
     @Test
     fun editSelectedIndex_assertEquals() = runTest {
-        val edit = repository.editSelectedIndex(5).first { it is FlowResult.Success }.getOrThrow()
-        assertTrue(edit)
-        val selectedIndex = repository.selectedIndex.first { it is FlowResult.Success }.getOrThrow()
+        localRepository.editSelectedIndex(5)
+        val selectedIndex = localRepository.selectedIndex.first()
         assertEquals(5L, selectedIndex)
     }
 }
