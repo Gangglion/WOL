@@ -32,6 +32,8 @@ class LocalRepositoryImpl @Inject constructor(
         }
     }
 
+    override suspend fun getAlias(mac: String): String? = roomDs.getAlias(mac)
+
     override suspend fun changeMacAddr(id: Long, newMacAddr: String) {
         roomDs.changeMacAddr(id, newMacAddr)
     }
@@ -39,6 +41,8 @@ class LocalRepositoryImpl @Inject constructor(
     override suspend fun changeAlias(id: Long, newAlias: String) {
         roomDs.changeAlias(id, newAlias)
     }
+
+    override suspend fun changePowerStatus(macAddr: String, status: Boolean) = roomDs.changePowerStatus(macAddr, status)
 
     override suspend fun insertDevice(vararg device: Device) {
         roomDs.insertDevice(*device.map { it.toEntity() }.toTypedArray())
@@ -60,5 +64,11 @@ class LocalRepositoryImpl @Inject constructor(
 
     override suspend fun editSelectedIndex(idx: Long) {
         settingDs.editSelectIndex(idx)
+    }
+
+    override fun getFcmToken(): Flow<String?> = settingDs.fcmToken
+
+    override suspend fun saveFcmToken(fcmToken: String) {
+        settingDs.setFcmToken(fcmToken)
     }
 }

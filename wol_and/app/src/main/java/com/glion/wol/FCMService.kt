@@ -8,7 +8,8 @@ import android.content.Intent
 import android.media.RingtoneManager
 import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
-import com.glion.wol.domain.repository.FcmRepository
+import com.glion.wol.domain.repository.CryptoRepository
+import com.glion.wol.domain.repository.LocalRepository
 import com.glion.wol.util.LogUtil
 import com.glion.wol.util.b64DecodeByteArray
 import com.google.firebase.messaging.FirebaseMessagingService
@@ -34,7 +35,10 @@ import javax.inject.Inject
 class FCMService : FirebaseMessagingService() {
 
     @Inject
-    lateinit var fcmRepository: FcmRepository
+    lateinit var localRepository: LocalRepository
+    @Inject
+    lateinit var cryptoRepository: CryptoRepository
+
     private val job = SupervisorJob()
     private val scope = CoroutineScope(Dispatchers.IO + job)
 
@@ -45,7 +49,7 @@ class FCMService : FirebaseMessagingService() {
         scope.launch {
             try {
                 // 1. 새로운 토큰 저장
-                fcmRepository.saveFcmToken(newToken)
+                localRepository.saveFcmToken(newToken)
             } catch(e: Exception) {
                 LogUtil.e("onNewToken has Error", e)
             }
@@ -63,11 +67,11 @@ class FCMService : FirebaseMessagingService() {
                     val iv = message.data["iv"]?.b64DecodeByteArray() ?: return@launch
                     val status = message.data["status"].run { this == "On" }
                     // 1. 맥주소 복호화하여 가져오기
-                    val mac = fcmRepository.decryptedMac(encryptedValue, iv)
+                    val mac = cryptoRepository.decryptedMac(encryptedValue, iv)
                     // 2. 맥주소의 PowerStatus 변경
-                    fcmRepository.changePowerStatus(mac, status)
+                    localRepository.changePowerStatus(mac, status)
                     // 3. 맥 주소의 별칭 가져옴
-                    val alias = fcmRepository.getAlias(mac)
+                    val alias = localRepository.getAlias(mac)
                     // 4. Push 띄워줌
                     if(alias != null) {
                         sendNotification(

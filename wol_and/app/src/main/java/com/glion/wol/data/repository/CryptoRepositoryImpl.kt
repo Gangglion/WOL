@@ -50,4 +50,10 @@ class CryptoRepositoryImpl @Inject constructor(
             dataSource.isExistAESKey()
         }
     }
+
+    override suspend fun decryptedMac(encryptedValue: ByteArray, iv: ByteArray): String {
+        return withContext(Dispatchers.Default) {
+            dataSource.decryptAES(encryptedValue, iv)
+        }
+    }
 }

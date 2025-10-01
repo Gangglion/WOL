@@ -38,4 +38,11 @@ interface RemoteRepository {
      * @return 결과 공통 객체
      */
     suspend fun startDevice(mac: String) : CommonResult
+
+    /**
+     * FCM 토큰 서버로 전송
+     * @param fcmToken FCM Token 문자열
+     * @return 결과와 message 가 있는 일반적인 Return Type
+     */
+    suspend fun sendFcmToken(fcmToken: String) : CommonResult
 }

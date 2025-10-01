@@ -21,6 +21,13 @@ interface LocalRepository {
     fun getAllDevice() : Flow<List<Device>>
 
     /**
+     * 맥 주소에 따른 별칭 가져오기
+     * @param mac 맥 주소
+     * @return 맥 주소에 해당하는 별칭
+     */
+    suspend fun getAlias(mac: String) : String?
+
+    /**
      * 맥주소 변경
      * @param id 기기 id
      * @param newMacAddr 변경할 맥 주소
@@ -35,6 +42,14 @@ interface LocalRepository {
      * @return Unit
      */
     suspend fun changeAlias(id: Long, newAlias: String)
+
+    /**
+     * 기기 전원상태 관리
+     * @param macAddr 전원상태를 변경할 맥 주소
+     * @param status 전원상태
+     * @return Unit
+     */
+    suspend fun changePowerStatus(macAddr: String, status: Boolean)
 
     /**
      * 기기 추가
@@ -60,4 +75,15 @@ interface LocalRepository {
      * @param 새로 선택한 기기 Index
      */
     suspend fun editSelectedIndex(idx: Long)
+
+    /**
+     * 저장된 FCM Token 가져오기
+     */
+    fun getFcmToken() : Flow<String?>
+
+    /**
+     * FCM Token DataStore 에 저장
+     * @param fcmToken FCM Token
+     */
+    suspend fun saveFcmToken(fcmToken: String)
 }

@@ -42,4 +42,11 @@ interface CryptoRepository {
      * @return 성공여부
      */
     suspend fun isExistAESKey() : Boolean
+
+    /**
+     * AES 암호화된 MAC 주소값 복호화
+     * @param encryptedValue 암호화된 값
+     * @param iv iv 값
+     */
+    suspend fun decryptedMac(encryptedValue: ByteArray, iv: ByteArray) : String
 }

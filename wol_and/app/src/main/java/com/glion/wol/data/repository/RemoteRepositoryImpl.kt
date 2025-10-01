@@ -26,33 +26,32 @@ class RemoteRepositoryImpl @Inject constructor(
 ) : RemoteRepository {
     override suspend fun exchangeKey(rsaPublicKey: ByteArray): ByteArray {
         return withContext(Dispatchers.IO) {
-            // 키 교환 API 호출
-            val body = apiDs.exchangeKey(rsaPublicKey)
-            // body 로 넘어온 RSA 키로 암호화된 AES 키 base64 디코딩
-            val encryptedAesKey = body.value.b64DecodeByteArray()
-            // 암호화된 키 값 그대로 리턴
-            encryptedAesKey
+            // 키 교환 API 호출 -> 결과를 Base64 로 디코딩
+            apiDs.exchangeKey(rsaPublicKey).value.b64DecodeByteArray()
         }
     }
 
     override suspend fun getToken(): String {
         return withContext(Dispatchers.IO) {
-            val body = apiDs.getToken()
-            body.value
+            apiDs.getToken().value
         }
     }
 
     override suspend fun refreshToken(): String {
         return withContext(Dispatchers.IO) {
-            val body = apiDs.refreshToken()
-            body.value
+            apiDs.refreshToken().value
         }
     }
 
     override suspend fun startDevice(mac: String): CommonResult {
         return withContext(Dispatchers.IO) {
-            val body = apiDs.startDevice(mac).toModel()
-            body
+            apiDs.startDevice(mac).toModel()
+        }
+    }
+
+    override suspend fun sendFcmToken(fcmToken: String): CommonResult {
+        return withContext(Dispatchers.IO) {
+            apiDs.sendPushToken(fcmToken).toModel()
         }
     }
 }

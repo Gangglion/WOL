@@ -1,11 +1,9 @@
 package com.glion.wol.di
 
 import com.glion.wol.data.repository.CryptoRepositoryImpl
-import com.glion.wol.data.repository.FcmRepositoryImpl
 import com.glion.wol.data.repository.LocalRepositoryImpl
 import com.glion.wol.data.repository.RemoteRepositoryImpl
 import com.glion.wol.domain.repository.CryptoRepository
-import com.glion.wol.domain.repository.FcmRepository
 import com.glion.wol.domain.repository.LocalRepository
 import com.glion.wol.domain.repository.RemoteRepository
 import dagger.Binds
@@ -44,10 +42,4 @@ abstract class RepositoryInjectModule {
     abstract fun bindCryptoRepository(
         cryptoRepositoryImpl: CryptoRepositoryImpl
     ) : CryptoRepository
-
-    @Binds
-    @Singleton
-    abstract fun bindFcmRepository(
-        fcmRepositoryImpl: FcmRepositoryImpl
-    ) : FcmRepository
 }
