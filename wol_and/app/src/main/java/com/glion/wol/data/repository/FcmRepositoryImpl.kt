@@ -21,10 +21,10 @@ import javax.inject.Inject
  * Copyright @2025 Gangglion. All rights reserved
  */
 class FcmRepositoryImpl @Inject constructor(
-    private val dbDataSource: DbDataSource,
+    private val settingDataSource: SettingDataSource,
     private val apiDataSource: ApiDataSource,
-    private val cryptoDataSource: CryptoDataSource,
-    private val settingDataSource: SettingDataSource
+    private val dbDataSource: DbDataSource,
+    private val cryptoDataSource: CryptoDataSource
 ) : FcmRepository {
     override fun getFcmToken(): Flow<String?> = settingDataSource.fcmToken
 

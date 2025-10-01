@@ -23,20 +23,20 @@ interface DeviceDao {
     fun getAllDevice(): Flow<List<DeviceEntity>>
 
     @Query("SELECT alias FROM DEVICE WHERE mac_addr LIKE :macAddr LIMIT 1")
-    fun getAlias(macAddr: String) : String?
+    suspend fun getAlias(macAddr: String) : String?
 
     @Query("UPDATE device SET mac_addr = :newMacAddr WHERE id LIKE :id")
-    fun changeMacAddr(id: Long, newMacAddr: String)
+    suspend fun changeMacAddr(id: Long, newMacAddr: String)
 
     @Query("UPDATE device SET alias = :newAlias WHERE id LIKE :id")
-    fun changeAlias(id: Long, newAlias: String)
+    suspend fun changeAlias(id: Long, newAlias: String)
 
     @Query("UPDATE device SET is_powerOn = :status WHERE mac_addr LIKE :macAddr")
-    fun changePowerStatus(macAddr: String, status: Boolean)
+    suspend fun changePowerStatus(macAddr: String, status: Boolean)
 
     @Insert
-    fun insertDevice(vararg deviceEntities: DeviceEntity)
+    suspend fun insertDevice(vararg deviceEntities: DeviceEntity)
 
     @Delete
-    fun deleteDevice(deviceEntity: DeviceEntity): Int // 삭제된 row 수 반환
+    suspend fun deleteDevice(deviceEntity: DeviceEntity): Int // 삭제된 row 수 반환
 }

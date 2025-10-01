@@ -1,7 +1,5 @@
 package com.glion.wol.domain.repository
 
-import kotlinx.coroutines.flow.Flow
-
 /**
  * Project : WOL
  * File : CryptoRepository
@@ -17,31 +15,31 @@ interface CryptoRepository {
      * RSA 키 로드(없으면 생성) - Default
      * @return Unit
      */
-    fun loadOrCreateRSAKey() : Flow<Unit>
+    suspend fun loadOrCreateRSAKey()
 
     /**
      * RSA 공개키 리턴
      * @return RSA 공개키
      */
-    fun getRSAPublicKey() : Flow<ByteArray>
+    suspend fun getRSAPublicKey() : ByteArray
 
     /**
      * AES 키 파일로 저장 - IO
      * @param encryptedAESKey RSA로 암호화된 AES 키 Flow
      * @return Unit
      */
-    suspend fun saveAESKey(encryptedAESKey: ByteArray) : Flow<Unit>
+    suspend fun saveAESKey(encryptedAESKey: ByteArray)
 
 
     /**
      * AES 키 메모리에 로드
      * @return Unit
      */
-    fun loadAESKey() : Flow<Unit>
+    suspend fun loadAESKey()
 
     /**
      * AES 키 존재 여부 리턴
      * @return 성공여부
      */
-    fun isExistAESKey() : Flow<Boolean>
+    suspend fun isExistAESKey() : Boolean
 }

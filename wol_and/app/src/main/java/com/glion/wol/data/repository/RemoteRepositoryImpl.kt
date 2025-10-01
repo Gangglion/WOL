@@ -5,6 +5,8 @@ import com.glion.wol.data.mapper.toModel
 import com.glion.wol.domain.model.remote.CommonResult
 import com.glion.wol.domain.repository.RemoteRepository
 import com.glion.wol.util.b64DecodeByteArray
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -23,26 +25,34 @@ class RemoteRepositoryImpl @Inject constructor(
     private val apiDs: ApiDataSource
 ) : RemoteRepository {
     override suspend fun exchangeKey(rsaPublicKey: ByteArray): ByteArray {
-        // 키 교환 API 호출
-        val body = apiDs.exchangeKey(rsaPublicKey)
-        // body 로 넘어온 RSA 키로 암호화된 AES 키 base64 디코딩
-        val encryptedAesKey = body.value.b64DecodeByteArray()
-        // 암호화된 키 값 그대로 리턴
-        return encryptedAesKey
+        return withContext(Dispatchers.IO) {
+            // 키 교환 API 호출
+            val body = apiDs.exchangeKey(rsaPublicKey)
+            // body 로 넘어온 RSA 키로 암호화된 AES 키 base64 디코딩
+            val encryptedAesKey = body.value.b64DecodeByteArray()
+            // 암호화된 키 값 그대로 리턴
+            encryptedAesKey
+        }
     }
 
     override suspend fun getToken(): String {
-        val body = apiDs.getToken()
-        return body.value
+        return withContext(Dispatchers.IO) {
+            val body = apiDs.getToken()
+            body.value
+        }
     }
 
     override suspend fun refreshToken(): String {
-        val body = apiDs.refreshToken()
-        return body.value
+        return withContext(Dispatchers.IO) {
+            val body = apiDs.refreshToken()
+            body.value
+        }
     }
 
     override suspend fun startDevice(mac: String): CommonResult {
-        val body = apiDs.startDevice(mac).toModel()
-        return body
+        return withContext(Dispatchers.IO) {
+            val body = apiDs.startDevice(mac).toModel()
+            body
+        }
     }
 }

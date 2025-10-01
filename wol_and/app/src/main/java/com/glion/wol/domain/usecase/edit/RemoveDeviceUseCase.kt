@@ -5,9 +5,7 @@ import com.glion.wol.domain.repository.LocalRepository
 import com.glion.wol.util.FlowResult
 import com.glion.wol.util.LogUtil
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.catch
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.onStart
+import kotlinx.coroutines.flow.flow
 import javax.inject.Inject
 
 /**
@@ -23,17 +21,14 @@ import javax.inject.Inject
 class RemoveDeviceUseCase @Inject constructor(
     private val localRepository: LocalRepository
 ) {
-    suspend operator fun invoke(device: Device) : Flow<FlowResult<Boolean>> {
-        return localRepository.deleteDevice(device)
-            .map<Boolean, FlowResult<Boolean>> {
-                FlowResult.Success(it)
-            }
-            .onStart {
-                emit(FlowResult.Loading)
-            }
-            .catch { e ->
-                LogUtil.e("RemoveDevice has Error", e)
-                emit(FlowResult.Error("", e.message ?: "UnKnown"))
-            }
+    operator fun invoke(device: Device) : Flow<FlowResult<Boolean>> = flow {
+        emit(FlowResult.Loading)
+        try {
+            val deleteResult = localRepository.deleteDevice(device)
+            emit(FlowResult.Success(deleteResult))
+        } catch(e: Exception) {
+            LogUtil.e("RemoveDevice has Error", e)
+            emit(FlowResult.Error("", e.message ?: "UnKnown"))
+        }
     }
 }

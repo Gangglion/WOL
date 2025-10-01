@@ -2,7 +2,6 @@ package com.glion.wol.ui.splash
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.glion.wol.domain.usecase.common.TokenSyncUseCase
 import com.glion.wol.domain.usecase.splash.InitializeUseCase
 import com.glion.wol.util.FlowResult
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -28,8 +27,7 @@ import javax.inject.Inject
  */
 @HiltViewModel
 class WolSplashViewModel @Inject constructor(
-    initializeUseCase: InitializeUseCase,
-    private val tokenSyncUseCase: TokenSyncUseCase
+    initializeUseCase: InitializeUseCase
 ) : ViewModel() {
     private val _snackbarEvent = MutableSharedFlow<String>()
     val snackbarEvent: SharedFlow<String> = _snackbarEvent
@@ -46,7 +44,6 @@ class WolSplashViewModel @Inject constructor(
             when(result) {
                 is FlowResult.Success -> {
                     if(result.data) {
-                        tokenSyncUseCase.startSyncToken()
                         WolSplashUiState(isLoading = true, isInitialize = true)
                     } else {
                         WolSplashUiState(isLoading = true)

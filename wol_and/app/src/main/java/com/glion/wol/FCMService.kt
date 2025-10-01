@@ -44,6 +44,7 @@ class FCMService : FirebaseMessagingService() {
         LogUtil.d("onNewToken :: $newToken")
         scope.launch {
             try {
+                // 1. 새로운 토큰 저장
                 fcmRepository.saveFcmToken(newToken)
             } catch(e: Exception) {
                 LogUtil.e("onNewToken has Error", e)

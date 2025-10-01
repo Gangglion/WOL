@@ -4,12 +4,10 @@ import com.glion.wol.domain.model.local.Device
 import com.glion.wol.domain.repository.LocalRepository
 import com.glion.wol.util.FlowResult
 import com.glion.wol.util.LogUtil
+import kotlinx.coroutines.async
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.catch
-import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.emptyFlow
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.onStart
+import kotlinx.coroutines.flow.flow
 import javax.inject.Inject
 
 /**
@@ -25,72 +23,49 @@ import javax.inject.Inject
 class ChangeDeviceInfoUseCase @Inject constructor(
     private val localRepository: LocalRepository
 ) {
-    suspend operator fun invoke(oldDevice: Device, newDevice: Device) : Flow<FlowResult<Boolean>> {
-        return when {
+    operator fun invoke(oldDevice: Device, newDevice: Device) : Flow<FlowResult<Boolean>> = flow {
+        when {
             oldDevice.mac == newDevice.mac && oldDevice.alias == newDevice.alias -> { // 아무런 변경이 없을 때
-                emptyFlow()
+                return@flow
             }
 
             oldDevice.mac == newDevice.mac && oldDevice.alias != newDevice.alias -> { // 별명만 변경되었을 때
-                localRepository.changeAlias(newDevice.id, newDevice.alias)
-                    .map<Unit, FlowResult<Boolean>> {
-                        FlowResult.Success(true)
-                    }
-                    .onStart { emit(FlowResult.Loading) }
-                    .catch { e ->
-                        LogUtil.e("changeAlias has Error", e)
-                        emit(FlowResult.Error("", e.message ?: "UnKnown"))
-                    }
+                emit(FlowResult.Loading)
+                try {
+                    localRepository.changeAlias(newDevice.id, newDevice.alias)
+                    emit(FlowResult.Success(true))
+                } catch(e: Exception) {
+                    LogUtil.e("changeAlias has Error", e)
+                    emit(FlowResult.Error("", e.message ?: "UnKnown"))
+                }
             }
 
             oldDevice.mac != newDevice.mac && oldDevice.alias == newDevice.alias -> { // 맥주소만 변경되었을 때
-                localRepository.changeMacAddr(newDevice.id, newDevice.mac)
-                    .map<Unit, FlowResult<Boolean>> {
-                        FlowResult.Success(true)
-                    }
-                    .onStart {
-                        emit(FlowResult.Loading)
-                    }
-                    .catch { e ->
-                        LogUtil.e("changeMacAddr has Error", e)
-                        emit(FlowResult.Error("", e.message ?: "UnKnown"))
-                    }
+                emit(FlowResult.Loading)
+                try {
+                    localRepository.changeMacAddr(newDevice.id, newDevice.mac)
+                    emit(FlowResult.Success(true))
+                } catch(e: Exception) {
+                    LogUtil.e("changeMacAddr has Error", e)
+                    emit(FlowResult.Error("", e.message ?: "UnKnown"))
+                }
             }
 
             else -> { // 둘다 변경되었을 때
-                val macFlow: Flow<FlowResult<Boolean>> = localRepository.changeMacAddr(newDevice.id, newDevice.mac)
-                    .map<Unit, FlowResult<Boolean>> {
-                        FlowResult.Success(true)
-                    }
-                    .catch { e ->
-                        LogUtil.e("changeMacAddr has Error", e)
-                        emit(FlowResult.Error("", e.message ?: "UnKnown"))
-                    }
-                val aliasFlow: Flow<FlowResult<Boolean>> = localRepository.changeAlias(newDevice.id, newDevice.alias)
-                    .map<Unit, FlowResult<Boolean>> {
-                        FlowResult.Success(true)
-                    }
-                    .catch { e ->
-                        LogUtil.e("changeAlias has Error", e)
-                        emit(FlowResult.Error("", e.message ?: "UnKnown"))
-                    }
+                emit(FlowResult.Loading)
+                try {
+                    // 맥 주소 변경 및 별칭 변경 동시 진행
+                    coroutineScope {
+                        val macChangeJob = async { localRepository.changeMacAddr(newDevice.id, newDevice.mac) }
+                        val aliasChangeJob = async { localRepository.changeAlias(newDevice.id, newDevice.alias) }
 
-                combine(macFlow, aliasFlow) { macRes, aliasRes ->
-                    if(macRes is FlowResult.Success && aliasRes is FlowResult.Success) {
-                        FlowResult.Success(true)
-                    } else {
-                        val errorMessage = mutableListOf<String>()
-
-                        if(macRes is FlowResult.Error) {
-                            errorMessage.add("changeMacAddr has Error : ${macRes.errorMsg}")
-                        }
-                        if(aliasRes is FlowResult.Error) {
-                            errorMessage.add("changeAlias has Error : ${aliasRes.errorMsg}")
-                        }
-                        FlowResult.Error("", errorMessage.joinToString("\n"))
+                        macChangeJob.await()
+                        aliasChangeJob.await()
                     }
-                }.onStart {
-                    emit(FlowResult.Loading)
+                    emit(FlowResult.Success(true))
+                } catch(e: Exception) {
+                    LogUtil.e("ChangeDeviceInfoUseCase has Error", e)
+                    emit(FlowResult.Error("", e.message ?: "UnKnown"))
                 }
             }
         }

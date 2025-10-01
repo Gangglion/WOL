@@ -26,7 +26,7 @@ interface LocalRepository {
      * @param newMacAddr 변경할 맥 주소
      * @return Unit
      */
-    suspend fun changeMacAddr(id: Long, newMacAddr: String) : Flow<Unit>
+    suspend fun changeMacAddr(id: Long, newMacAddr: String)
 
     /**
      * 별칭 변경
@@ -34,21 +34,21 @@ interface LocalRepository {
      * @param newAlias 변경할 별칭
      * @return Unit
      */
-    suspend fun changeAlias(id: Long, newAlias: String) : Flow<Unit>
+    suspend fun changeAlias(id: Long, newAlias: String)
 
     /**
      * 기기 추가
      * @param device 추가할 device
      * @return Unit
      */
-    suspend fun insertDevice(vararg device: Device) : Flow<Unit>
+    suspend fun insertDevice(vararg device: Device)
 
     /**
      * 기기 삭제
      * @param device 삭제할 Device 객체
      * @return 삭제 완료 여부
      */
-    suspend fun deleteDevice(device: Device) : Flow<Boolean>
+    suspend fun deleteDevice(device: Device) : Boolean
 
     /**
      * 선택된 기기 Index

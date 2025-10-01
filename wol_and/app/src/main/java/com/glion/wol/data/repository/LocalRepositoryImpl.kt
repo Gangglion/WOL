@@ -6,10 +6,7 @@ import com.glion.wol.data.mapper.toEntity
 import com.glion.wol.data.mapper.toModel
 import com.glion.wol.domain.model.local.Device
 import com.glion.wol.domain.repository.LocalRepository
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -35,30 +32,26 @@ class LocalRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun changeMacAddr(id: Long, newMacAddr: String): Flow<Unit> = flow {
+    override suspend fun changeMacAddr(id: Long, newMacAddr: String) {
         roomDs.changeMacAddr(id, newMacAddr)
-        emit(Unit)
-    }.flowOn(Dispatchers.IO)
+    }
 
-    override suspend fun changeAlias(id: Long, newAlias: String): Flow<Unit> = flow {
+    override suspend fun changeAlias(id: Long, newAlias: String) {
         roomDs.changeAlias(id, newAlias)
-        emit(Unit)
-    }.flowOn(Dispatchers.IO)
+    }
 
-    override suspend fun insertDevice(vararg device: Device): Flow<Unit> = flow {
+    override suspend fun insertDevice(vararg device: Device) {
         roomDs.insertDevice(*device.map { it.toEntity() }.toTypedArray())
-        emit(Unit)
-    }.flowOn(Dispatchers.IO)
+    }
 
-    override suspend fun deleteDevice(device: Device): Flow<Boolean> = flow {
+    override suspend fun deleteDevice(device: Device) : Boolean{
         val deleteCount = roomDs.deleteDevice(device.toEntity())
         if(deleteCount > 0) {
-            emit(true)
+            return true
         } else {
             throw Exception("Nothing to Delete")
         }
-
-    }.flowOn(Dispatchers.IO)
+    }
 
     // dataSource 에서 이미 Flow 를 넘겨주기 때문에, repository 에서 다시 flow 를 만들 필요는 없음
     override val selectedIndex: Flow<Long>
