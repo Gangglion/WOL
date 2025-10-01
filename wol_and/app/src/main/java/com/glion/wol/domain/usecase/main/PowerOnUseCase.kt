@@ -4,9 +4,7 @@ import com.glion.wol.domain.repository.RemoteRepository
 import com.glion.wol.util.FlowResult
 import com.glion.wol.util.LogUtil
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.catch
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.onStart
+import kotlinx.coroutines.flow.flow
 import javax.inject.Inject
 
 /**
@@ -22,21 +20,18 @@ import javax.inject.Inject
 class PowerOnUseCase @Inject constructor(
     private val remoteRepository: RemoteRepository
 ) {
-    operator fun invoke(mac: String) : Flow<FlowResult<Boolean>> {
-        return remoteRepository.startDevice(mac)
-            .map { wolResult ->
-                if(wolResult.result) {
-                    FlowResult.Success(true)
-                } else {
-                    FlowResult.Error("", wolResult.message)
-                }
+    operator fun invoke(mac: String) : Flow<FlowResult<Boolean>> = flow {
+        emit(FlowResult.Loading)
+        try {
+            val wolResult = remoteRepository.startDevice(mac)
+            if(wolResult.result) {
+                emit(FlowResult.Success(true))
+            } else {
+                emit(FlowResult.Error("", wolResult.message))
             }
-            .onStart {
-                emit(FlowResult.Loading)
-            }
-            .catch { e ->
-                LogUtil.e("PowerOnUseCase has Error", e)
-                emit(FlowResult.Error("", e.message ?: "UnKnown"))
-            }
+        } catch(e: Exception) {
+            LogUtil.e("PowerOnUseCase has Error", e)
+            emit(FlowResult.Error("", e.message ?: "UnKnown"))
+        }
     }
 }

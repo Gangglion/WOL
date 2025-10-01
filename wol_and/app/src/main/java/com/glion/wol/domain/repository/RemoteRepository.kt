@@ -1,7 +1,6 @@
 package com.glion.wol.domain.repository
 
 import com.glion.wol.domain.model.remote.CommonResult
-import kotlinx.coroutines.flow.Flow
 
 /**
  * Project : WOL
@@ -19,24 +18,24 @@ interface RemoteRepository {
      * @param rsaPublicKey RSA Public Key
      * @return 암호화된 AESKey
      */
-    suspend fun exchangeKey(rsaPublicKey: ByteArray) : Flow<ByteArray>
+    suspend fun exchangeKey(rsaPublicKey: ByteArray) : ByteArray
 
     /**
      * AccessToken 얻기
      * @return AccessToken
      */
-    suspend fun getToken() : Flow<String>
+    suspend fun getToken() : String
 
     /**
      * AccessToken 갱신
      * @return 새로운 AccessToken
      */
-    suspend fun refreshToken() : Flow<String>
+    suspend fun refreshToken() : String
 
     /**
      * 기기 전원 켜기
      * @param mac 전원을 켤 맥 주소
      * @return 결과 공통 객체
      */
-    fun startDevice(mac: String) : Flow<CommonResult>
+    suspend fun startDevice(mac: String) : CommonResult
 }

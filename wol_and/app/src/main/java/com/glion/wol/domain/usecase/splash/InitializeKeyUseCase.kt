@@ -36,10 +36,8 @@ class InitializeKeyUseCase @Inject constructor(
                         if(keyExists) {
                             cryptoRepository.loadAESKey()
                         } else {
-                            remoteRepository.exchangeKey(rsaPublicKeyResult)
-                                .flatMapConcat { encryptedAESKey ->
-                                    cryptoRepository.saveAESKey(encryptedAESKey)
-                                }
+                            val encryptedAesKey = remoteRepository.exchangeKey(rsaPublicKeyResult)
+                            cryptoRepository.saveAESKey(encryptedAesKey)
                         }
                     }
             }

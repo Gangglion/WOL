@@ -3,7 +3,6 @@ package com.glion.wol.domain.usecase.splash
 import com.glion.wol.data.auth.TokenManager
 import com.glion.wol.domain.repository.RemoteRepository
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
 import javax.inject.Inject
 
@@ -23,7 +22,7 @@ class GetTokenUseCase @Inject constructor(
 ) {
     operator fun invoke() : Flow<Unit> = flow {
         if(tokenManager.getToken() == null) { // 저장된 토큰이 없을때만 요청
-            val newToken = remoteRepository.getToken().first()
+            val newToken = remoteRepository.getToken()
             tokenManager.saveToken(newToken)
         }
         emit(Unit)
