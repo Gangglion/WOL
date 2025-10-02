@@ -21,7 +21,7 @@ import javax.inject.Inject
  * Created by glion on 2025-09-22
  *
  * Description:
- * - 추후 기입
+ * - Splash 화면 ViewModel
  *
  * Copyright @2025 Gangglion. All rights reserved
  */

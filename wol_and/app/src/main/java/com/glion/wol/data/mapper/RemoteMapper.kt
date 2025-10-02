@@ -9,7 +9,7 @@ import com.glion.wol.domain.model.remote.CommonResult
  * Created by glion on 2025-09-22
  *
  * Description:
- * - 추후 기입
+ * - API Response DTO -> Model Mapper
  *
  * Copyright @2025 Gangglion. All rights reserved
  */
