@@ -133,7 +133,8 @@ fun EditScreenContent(
         }
 
         items(
-            items = uiState.deviceList
+            items = uiState.deviceList,
+            key = { device -> device.id } // item 의 key 값을 지정하여 item 을 명확하게 구분하고 추적함. 추가/수정/삭제 될 때 필수.
         ) { device ->
             // 수정중이거나 추가중이 아니며, 전원이 꺼져있는 기기만 삭제 가능
             val canSwipe = uiState.editDevice == null && !device.isPowerOn && !uiState.isAddMode
