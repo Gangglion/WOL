@@ -81,7 +81,8 @@ fun WolSplashScreen(
         }
     } else { // Android 13 미만 기기 - 권한 요청 필요 없음
         LaunchedEffect(uiState.isInitialize) {
-            navigateToMain()
+            if(uiState.isInitialize)
+                navigateToMain()
         }
     }
 
