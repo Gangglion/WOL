@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawing
@@ -73,7 +74,11 @@ fun DeviceDrawerContent(
     onClickDevice: (Long) -> Unit,
     goSetting: () -> Unit,
 ) {
-    ModalDrawerSheet {
+    ModalDrawerSheet(
+        modifier = Modifier
+            .fillMaxHeight()
+            .fillMaxWidth(0.7f)
+    ) {
         if(deviceList.isEmpty()) {
             Box(
                 modifier = Modifier

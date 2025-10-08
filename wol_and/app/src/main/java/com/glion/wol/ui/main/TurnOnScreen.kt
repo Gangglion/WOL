@@ -1,5 +1,6 @@
 package com.glion.wol.ui.main
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -96,6 +97,13 @@ fun TurnOnScreen(
     LaunchedEffect(Unit) {
         viewModel.snackbarFlow.collect { msg ->
             sbHost.showSnackbar(msg)
+        }
+    }
+
+    // BackPressed 처리 -
+    BackHandler(enabled = drawerState.isOpen) {
+        scope.launch {
+            drawerState.close()
         }
     }
 }
