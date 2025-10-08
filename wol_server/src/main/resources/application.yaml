@@ -3,4 +3,11 @@ ktor:
     modules:
       - com.glion.ApplicationKt.module
   deployment:
-    port: 10001
+    sslPort: 10001
+
+  security:
+    ssl:
+      keyStore: ${ktor.security.ssl.keyStore}
+      keyAlias: ${ktor.security.ssl.keyAlias}
+      keyStorePassword: ${ktor.security.ssl.keyStorePassword}
+      privateKeyPassword: ${ktor.security.ssl.privateKeyPassword}
