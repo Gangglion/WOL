@@ -2,4 +2,6 @@
     <string name="app_name">WOL</string>
     <string name="device_on" formatted="false">%s 의 전원이 켜졌습니다</string>
     <string name="device_off" formatted="false">%s 의 전원이 꺼졌습니다</string>
+    <string name="device_on_unknown">기기의 전원이 켜졌습니다</string>
+    <string name="device_off_unknown">기기의 전원이 꺼졌습니다</string>
 </resources>

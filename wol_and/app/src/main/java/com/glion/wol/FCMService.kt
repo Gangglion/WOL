@@ -62,10 +62,10 @@ class FCMService : FirebaseMessagingService() {
         // check if message contains a data payload
         if(message.data.isNotEmpty()) {
             scope.launch {
+                val encryptedValue = message.data["encryptedValue"]?.b64DecodeByteArray() ?: return@launch
+                val iv = message.data["iv"]?.b64DecodeByteArray() ?: return@launch
+                val status = message.data["status"].run { this == "On" }
                 try {
-                    val encryptedValue = message.data["encryptedValue"]?.b64DecodeByteArray() ?: return@launch
-                    val iv = message.data["iv"]?.b64DecodeByteArray() ?: return@launch
-                    val status = message.data["status"].run { this == "On" }
                     // 1. 맥주소 복호화하여 가져오기
                     val mac = cryptoRepository.decryptedMac(encryptedValue, iv)
                     // 2. 맥주소의 PowerStatus 변경
@@ -82,8 +82,27 @@ class FCMService : FirebaseMessagingService() {
                             }
                         )
                     }
+                } catch(e: IllegalArgumentException) {
+                    // 앱의 프로세스가 죽어있어 복호화가 실패한 경우 - 수동으로 키 로드하여 복호화 진행해주어야 함
+                    // 1. RSA 키 로드
+                    val rsaKey = cryptoRepository
+                    // 2. AES 키 로드 + RSA 로 복호화
+
+                    // 3. 맥 주소 복호화하여 가져옴
+
+                    // 4. 복호화한 맥 주소의 별칭 가져옴
+
+                    // 5. 푸시 보냄
                 } catch(e: Exception) {
-                    LogUtil.e("Error ins onMessageReceived", e)
+                    // status 에 따라 push 만 띄워줌
+                    LogUtil.e("Error in onMessageReceived", e)
+                    sendNotification(
+                        if(status) {
+                            ContextCompat.getString(this@FCMService, R.string.device_on_unknown)
+                        } else {
+                            ContextCompat.getString(this@FCMService, R.string.device_off_unknown)
+                        }
+                    )
                 }
             }
         }
