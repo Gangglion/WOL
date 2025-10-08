@@ -31,8 +31,7 @@ android {
         }
 
         buildConfigField("String", "APP_KEY", localProperties.getProperty("appKey"))
-        buildConfigField("String", "DDNS_IN", localProperties.getProperty("ddnsIn"))
-        buildConfigField("String", "DDNS_OUT", localProperties.getProperty("ddnsOut"))
+        buildConfigField("String", "API_URL", localProperties.getProperty("apiUrl"))
     }
 
     buildTypes {

@@ -13,8 +13,6 @@ import kotlinx.coroutines.flow.Flow
  * Copyright @2025 Gangglion. All rights reserved
  */
 interface SettingDataSource {
-    val currentUrl: Flow<String?>
-    suspend fun setUrl(url: String)
     val selectedIndex: Flow<Long>
     suspend fun editSelectIndex(idx: Long)
     val token: Flow<String?>

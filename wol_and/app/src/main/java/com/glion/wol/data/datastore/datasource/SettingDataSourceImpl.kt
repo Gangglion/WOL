@@ -3,7 +3,6 @@ package com.glion.wol.data.datastore.datasource
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
-import com.glion.wol.data.datastore.CURRENT_URL
 import com.glion.wol.data.datastore.FCM_TOKEN
 import com.glion.wol.data.datastore.HEADER_TOKEN
 import com.glion.wol.data.datastore.SELECTED_INDEX
@@ -24,17 +23,6 @@ import javax.inject.Inject
 class SettingDataSourceImpl @Inject constructor(
     private val ds: DataStore<Preferences>
 ) : SettingDataSource {
-    override val currentUrl: Flow<String?>
-        get() = ds.data.map { pref ->
-            pref[CURRENT_URL]
-        }
-
-    override suspend fun setUrl(url: String) {
-        ds.edit { pref ->
-            pref[CURRENT_URL] = url
-        }
-    }
-
     override val selectedIndex: Flow<Long>
         get() = ds.data.map { pref ->
             pref[SELECTED_INDEX] ?: 0L

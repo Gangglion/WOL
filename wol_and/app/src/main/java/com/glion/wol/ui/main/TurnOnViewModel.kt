@@ -3,10 +3,8 @@ package com.glion.wol.ui.main
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.glion.wol.domain.usecase.common.GetAllDeviceUseCase
-import com.glion.wol.domain.usecase.main.GetCurrentUrlStatusUseCase
 import com.glion.wol.domain.usecase.main.GetSelectedIndexUseCase
 import com.glion.wol.domain.usecase.main.PowerOnUseCase
-import com.glion.wol.domain.usecase.main.SetCurrentUrlStatusUseCase
 import com.glion.wol.domain.usecase.main.SetSelectedIndexUseCase
 import com.glion.wol.util.FlowResult
 import com.glion.wol.util.LogUtil
@@ -33,10 +31,8 @@ import javax.inject.Inject
  */
 @HiltViewModel
 class TurnOnViewModel @Inject constructor(
-    getCurrentUrlStatusUseCase: GetCurrentUrlStatusUseCase,
     getAllDeviceUseCase: GetAllDeviceUseCase,
     getSelectedIndexUseCase: GetSelectedIndexUseCase,
-    private val setCurrentUrlStatusUseCase: SetCurrentUrlStatusUseCase,
     private val setSelectedIndexUseCase: SetSelectedIndexUseCase,
     private val powerOnUseCase: PowerOnUseCase
 ) : ViewModel() {
@@ -45,12 +41,6 @@ class TurnOnViewModel @Inject constructor(
 
     // 모든 기기 정보 가져오는 Flow - 에러 관찰하여 Snackbar 띄워줌
     private val _getAllDeviceFlow = getAllDeviceUseCase()
-        .onEach { result ->
-            if(result is FlowResult.Error) {
-                showSnackbarMsg(result.errorMsg)
-            }
-        }
-    private val _getCurrentUrlStatusFlow = getCurrentUrlStatusUseCase()
         .onEach { result ->
             if(result is FlowResult.Error) {
                 showSnackbarMsg(result.errorMsg)
@@ -66,17 +56,14 @@ class TurnOnViewModel @Inject constructor(
 
     val uiState : StateFlow<TurnOnUiState> = combine(
         _getAllDeviceFlow,
-        _getSelectedIndexFlow,
-        _getCurrentUrlStatusFlow,
-    ) { allDeviceResult, selectedIndexResult, currentUrlModeResult ->
-        val internalMode = (currentUrlModeResult as? FlowResult.Success)?.data ?: false
+        _getSelectedIndexFlow
+    ) { allDeviceResult, selectedIndexResult ->
         val selectedIndex = (selectedIndexResult as? FlowResult.Success)?.data ?: 0L
 
         when(allDeviceResult) {
             is FlowResult.Success -> {
                 TurnOnUiState(
                     isLoading = false,
-                    isInternalMode = internalMode,
                     deviceList = allDeviceResult.data,
                     selectedDevice = allDeviceResult.data.find { device -> device.id == selectedIndex }
                 )
@@ -115,36 +102,20 @@ class TurnOnViewModel @Inject constructor(
         }
         viewModelScope.launch {
             with(uiState.value) {
-                if(this != null) {
-                    powerOnUseCase(selectedDevice!!.mac).collect { result ->
-                        when(result) {
-                            is FlowResult.Success -> {
-                                showSnackbarMsg(msg = "${selectedDevice.alias} 의 전원을 켜는 중입니다.")
-                            }
-                            is FlowResult.Error -> {
-                                showSnackbarMsg(msg = result.errorMsg)
-                            }
-                            is FlowResult.Loading -> {
+                powerOnUseCase(selectedDevice!!.mac).collect { result ->
+                    when (result) {
+                        is FlowResult.Success -> {
+                            showSnackbarMsg(msg = "${selectedDevice.alias} 의 전원을 켜는 중입니다.")
+                        }
 
-                            }
+                        is FlowResult.Error -> {
+                            showSnackbarMsg(msg = result.errorMsg)
+                        }
+
+                        is FlowResult.Loading -> {
+
                         }
                     }
-                }
-            }
-        }
-    }
-
-    fun changeUrlStatus(status: Boolean) {
-        viewModelScope.launch {
-            setCurrentUrlStatusUseCase(status).collect { result ->
-                when(result) {
-                    is FlowResult.Success -> {
-                        showSnackbarMsg(msg = if(status) "내부망 전환" else "외부망 전환")
-                    }
-                    is FlowResult.Error -> {
-                        showSnackbarMsg(msg = result.errorMsg)
-                    }
-                    else -> {}
                 }
             }
         }

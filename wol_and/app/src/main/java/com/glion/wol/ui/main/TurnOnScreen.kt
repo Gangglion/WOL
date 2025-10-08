@@ -1,7 +1,6 @@
 package com.glion.wol.ui.main
 
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -11,7 +10,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHostState
-import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
@@ -89,8 +87,7 @@ fun TurnOnScreen(
             TurnOnScreenContent(
                 modifier = Modifier.padding(innerPadding),
                 uiState = uiState,
-                clickPowerOn = { viewModel.powerOn() },
-                changeUrlStatus = { value -> viewModel.changeUrlStatus(value) }
+                clickPowerOn = { viewModel.powerOn() }
             )
         }
     }
@@ -107,62 +104,51 @@ fun TurnOnScreen(
 fun TurnOnScreenContent(
     modifier: Modifier = Modifier,
     uiState: TurnOnUiState,
-    clickPowerOn: () -> Unit,
-    changeUrlStatus: (Boolean) -> Unit
+    clickPowerOn: () -> Unit
 ) {
-    Box {
-        with(uiState){
-            Column(
-                modifier = modifier.fillMaxSize(),
-                verticalArrangement = Arrangement.Center,
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                if (selectedDevice == null) {
+    with(uiState) {
+        Column(
+            modifier = modifier.fillMaxSize(),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            if (selectedDevice == null) {
+                Text(
+                    modifier = Modifier.padding(vertical = 36.dp, horizontal = 16.dp),
+                    text = "지정된 기기가 없습니다.\n확인해주세요",
+                    fontSize = 24.sp,
+                    fontWeight = FontWeight.Bold,
+                    textAlign = TextAlign.Center
+                )
+            } else {
+                Column(
+                    modifier = Modifier.padding(bottom = 16.dp),
+                    verticalArrangement = Arrangement.Center,
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
                     Text(
-                        modifier = Modifier.padding(vertical = 36.dp, horizontal = 16.dp),
-                        text = "지정된 기기가 없습니다.\n확인해주세요",
-                        fontSize = 24.sp,
-                        fontWeight = FontWeight.Bold,
-                        textAlign = TextAlign.Center
+                        text = selectedDevice.alias,
+                        fontSize = 20.sp,
+                        fontWeight = FontWeight.Bold
                     )
-                } else {
-                    Column(
-                        modifier = Modifier.padding(bottom = 16.dp),
-                        verticalArrangement = Arrangement.Center,
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        Text(
-                            text = selectedDevice.alias,
-                            fontSize = 20.sp,
-                            fontWeight = FontWeight.Bold
-                        )
-                        Text(
-                            text = selectedDevice.mac,
-                            fontSize = 16.sp,
-                            fontWeight = FontWeight.Normal
-                        )
-                    }
-                    IconButton(
-                        onClick = clickPowerOn,
-                        modifier = Modifier.size(128.dp)
-                    ) {
-                        Icon(
-                            painter = painterResource(id = R.drawable.ic_power),
-                            contentDescription = null,
-                            tint = if (!selectedDevice.isPowerOn) Color.Red else Color.Green,
-                            modifier = Modifier.fillMaxSize()
-                        )
-                    }
+                    Text(
+                        text = selectedDevice.mac,
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.Normal
+                    )
+                }
+                IconButton(
+                    onClick = clickPowerOn,
+                    modifier = Modifier.size(128.dp)
+                ) {
+                    Icon(
+                        painter = painterResource(id = R.drawable.ic_power),
+                        contentDescription = null,
+                        tint = if (!selectedDevice.isPowerOn) Color.Red else Color.Green,
+                        modifier = Modifier.fillMaxSize()
+                    )
                 }
             }
-
-            Switch(
-                checked = isInternalMode,
-                onCheckedChange = changeUrlStatus,
-                modifier = Modifier
-                    .align(alignment = Alignment.BottomEnd)
-                    .padding(end = 16.dp, bottom = 16.dp)
-            )
         }
     }
 }
@@ -172,8 +158,7 @@ fun TurnOnScreenContent(
 fun PreviewTurnOnScreen() {
     TurnOnScreenContent(
         uiState = TurnOnUiState(),
-        clickPowerOn = {},
-        changeUrlStatus = {}
+        clickPowerOn = {}
     )
 }
 
@@ -188,7 +173,6 @@ fun PreviewTurnOnScreenDevice() {
                 isPowerOn = false
             )
         ),
-        clickPowerOn = {},
-        changeUrlStatus = {}
+        clickPowerOn = {}
     )
 }
