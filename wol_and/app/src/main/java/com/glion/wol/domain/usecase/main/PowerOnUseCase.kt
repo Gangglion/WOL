@@ -1,6 +1,6 @@
 package com.glion.wol.domain.usecase.main
 
-import com.glion.wol.domain.repository.RemoteRepository
+import com.glion.wol.domain.repository.DeviceRepository
 import com.glion.wol.util.FlowResult
 import com.glion.wol.util.LogUtil
 import kotlinx.coroutines.flow.Flow
@@ -18,12 +18,12 @@ import javax.inject.Inject
  * Copyright @2025 Gangglion. All rights reserved
  */
 class PowerOnUseCase @Inject constructor(
-    private val remoteRepository: RemoteRepository
+    private val deviceRepository: DeviceRepository
 ) {
     operator fun invoke(mac: String) : Flow<FlowResult<Boolean>> = flow {
         emit(FlowResult.Loading)
         try {
-            val wolResult = remoteRepository.startDevice(mac)
+            val wolResult = deviceRepository.startDevice(mac)
             if(wolResult.result) {
                 emit(FlowResult.Success(true))
             } else {

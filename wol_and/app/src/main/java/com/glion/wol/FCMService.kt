@@ -8,8 +8,8 @@ import android.content.Intent
 import android.media.RingtoneManager
 import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
-import com.glion.wol.domain.repository.CryptoRepository
-import com.glion.wol.domain.repository.LocalRepository
+import com.glion.wol.domain.repository.DeviceRepository
+import com.glion.wol.domain.repository.PushRepository
 import com.glion.wol.util.LogUtil
 import com.glion.wol.util.b64DecodeByteArray
 import com.google.firebase.messaging.FirebaseMessagingService
@@ -35,9 +35,9 @@ import javax.inject.Inject
 class FCMService : FirebaseMessagingService() {
 
     @Inject
-    lateinit var localRepository: LocalRepository
+    lateinit var pushRepository: PushRepository
     @Inject
-    lateinit var cryptoRepository: CryptoRepository
+    lateinit var deviceRepository: DeviceRepository
 
     private val job = SupervisorJob()
     private val scope = CoroutineScope(Dispatchers.IO + job)
@@ -49,7 +49,7 @@ class FCMService : FirebaseMessagingService() {
         scope.launch {
             try {
                 // 1. 새로운 토큰 저장
-                localRepository.saveFcmToken(newToken)
+                pushRepository.saveFcmToken(newToken)
             } catch(e: Exception) {
                 LogUtil.e("onNewToken has Error", e)
             }
@@ -67,11 +67,11 @@ class FCMService : FirebaseMessagingService() {
                 val status = message.data["status"].run { this == "On" }
                 try {
                     // 1. 맥주소 복호화하여 가져오기
-                    val mac = cryptoRepository.decryptedMac(encryptedValue, iv)
+                    val mac = pushRepository.decryptedPushData(encryptedValue, iv)
                     // 2. 맥주소의 PowerStatus 변경
-                    localRepository.changePowerStatus(mac, status)
+                    deviceRepository.changePowerStatus(mac, status)
                     // 3. 맥 주소의 별칭 가져옴
-                    val alias = localRepository.getAlias(mac)
+                    val alias = deviceRepository.getAlias(mac)
                     // 4. Push 띄워줌
                     if(alias != null) {
                         sendNotification(
@@ -82,17 +82,6 @@ class FCMService : FirebaseMessagingService() {
                             }
                         )
                     }
-                } catch(e: IllegalArgumentException) {
-                    // 앱의 프로세스가 죽어있어 복호화가 실패한 경우 - 수동으로 키 로드하여 복호화 진행해주어야 함
-                    // 1. RSA 키 로드
-                    val rsaKey = cryptoRepository
-                    // 2. AES 키 로드 + RSA 로 복호화
-
-                    // 3. 맥 주소 복호화하여 가져옴
-
-                    // 4. 복호화한 맥 주소의 별칭 가져옴
-
-                    // 5. 푸시 보냄
                 } catch(e: Exception) {
                     // status 에 따라 push 만 띄워줌
                     LogUtil.e("Error in onMessageReceived", e)

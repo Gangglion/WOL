@@ -1,7 +1,6 @@
 package com.glion.wol.domain.usecase.splash
 
-import com.glion.wol.data.auth.TokenManager
-import com.glion.wol.domain.repository.RemoteRepository
+import com.glion.wol.domain.repository.AuthRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
@@ -19,14 +18,10 @@ import javax.inject.Inject
  * Copyright @2025 Gangglion. All rights reserved
  */
 class GetTokenUseCase @Inject constructor(
-    private val remoteRepository: RemoteRepository,
-    private val tokenManager: TokenManager
+    private val authRepository: AuthRepository
 ) {
     operator fun invoke() : Flow<Unit> = flow {
-        if(tokenManager.getToken() == null) { // 저장된 토큰이 없을때만 요청
-            val newToken = remoteRepository.getToken()
-            tokenManager.saveToken(newToken)
-        }
+        authRepository.getAccessToken()
         emit(Unit)
     }.flowOn(Dispatchers.IO)
 }

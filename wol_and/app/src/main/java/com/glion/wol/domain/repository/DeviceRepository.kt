@@ -1,19 +1,20 @@
 package com.glion.wol.domain.repository
 
 import com.glion.wol.domain.model.local.Device
+import com.glion.wol.domain.model.remote.CommonResult
 import kotlinx.coroutines.flow.Flow
 
 /**
  * Project : WOL
- * File : DbRepository
- * Created by glion on 2025-09-02
+ * File : DeviceRepository
+ * Created by glion on 2025-10-13
  *
  * Description:
- * - Local Repository 정의
+ * - 기기 관리 Repository
  *
  * Copyright @2025 Gangglion. All rights reserved
  */
-interface LocalRepository {
+interface DeviceRepository {
     /**
      * DB 에 저장된 모든 기기정보 가져오기
      * @return 기기 List
@@ -77,13 +78,9 @@ interface LocalRepository {
     suspend fun editSelectedIndex(idx: Long)
 
     /**
-     * 저장된 FCM Token 가져오기
+     * 기기 전원 켜기
+     * @param mac 전원을 켤 맥 주소
+     * @return 결과 공통 객체
      */
-    fun getFcmToken() : Flow<String?>
-
-    /**
-     * FCM Token DataStore 에 저장
-     * @param fcmToken FCM Token
-     */
-    suspend fun saveFcmToken(fcmToken: String)
+    suspend fun startDevice(mac: String) : CommonResult
 }

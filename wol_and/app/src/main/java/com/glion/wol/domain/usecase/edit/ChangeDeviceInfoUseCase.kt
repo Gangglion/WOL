@@ -1,7 +1,7 @@
 package com.glion.wol.domain.usecase.edit
 
 import com.glion.wol.domain.model.local.Device
-import com.glion.wol.domain.repository.LocalRepository
+import com.glion.wol.domain.repository.DeviceRepository
 import com.glion.wol.util.FlowResult
 import com.glion.wol.util.LogUtil
 import kotlinx.coroutines.async
@@ -21,7 +21,7 @@ import javax.inject.Inject
  * Copyright @2025 Gangglion. All rights reserved
  */
 class ChangeDeviceInfoUseCase @Inject constructor(
-    private val localRepository: LocalRepository
+    private val deviceRepository: DeviceRepository
 ) {
     operator fun invoke(oldDevice: Device, newDevice: Device) : Flow<FlowResult<Boolean>> = flow {
         when {
@@ -32,7 +32,7 @@ class ChangeDeviceInfoUseCase @Inject constructor(
             oldDevice.mac == newDevice.mac && oldDevice.alias != newDevice.alias -> { // 별명만 변경되었을 때
                 emit(FlowResult.Loading)
                 try {
-                    localRepository.changeAlias(newDevice.id, newDevice.alias)
+                    deviceRepository.changeAlias(newDevice.id, newDevice.alias)
                     emit(FlowResult.Success(true))
                 } catch(e: Exception) {
                     LogUtil.e("changeAlias has Error", e)
@@ -43,7 +43,7 @@ class ChangeDeviceInfoUseCase @Inject constructor(
             oldDevice.mac != newDevice.mac && oldDevice.alias == newDevice.alias -> { // 맥주소만 변경되었을 때
                 emit(FlowResult.Loading)
                 try {
-                    localRepository.changeMacAddr(newDevice.id, newDevice.mac)
+                    deviceRepository.changeMacAddr(newDevice.id, newDevice.mac)
                     emit(FlowResult.Success(true))
                 } catch(e: Exception) {
                     LogUtil.e("changeMacAddr has Error", e)
@@ -56,8 +56,8 @@ class ChangeDeviceInfoUseCase @Inject constructor(
                 try {
                     // 맥 주소 변경 및 별칭 변경 동시 진행
                     coroutineScope {
-                        val macChangeJob = async { localRepository.changeMacAddr(newDevice.id, newDevice.mac) }
-                        val aliasChangeJob = async { localRepository.changeAlias(newDevice.id, newDevice.alias) }
+                        val macChangeJob = async { deviceRepository.changeMacAddr(newDevice.id, newDevice.mac) }
+                        val aliasChangeJob = async { deviceRepository.changeAlias(newDevice.id, newDevice.alias) }
 
                         macChangeJob.await()
                         aliasChangeJob.await()

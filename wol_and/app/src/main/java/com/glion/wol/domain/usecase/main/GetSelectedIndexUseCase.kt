@@ -1,6 +1,6 @@
 package com.glion.wol.domain.usecase.main
 
-import com.glion.wol.domain.repository.LocalRepository
+import com.glion.wol.domain.repository.DeviceRepository
 import com.glion.wol.util.FlowResult
 import com.glion.wol.util.LogUtil
 import kotlinx.coroutines.flow.Flow
@@ -19,10 +19,10 @@ import javax.inject.Inject
  * Copyright @2025 Gangglion. All rights reserved
  */
 class GetSelectedIndexUseCase @Inject constructor(
-    private val localRepository: LocalRepository
+    private val deviceRepository: DeviceRepository
 ) {
     operator fun invoke() : Flow<FlowResult<Long>> {
-        return localRepository.selectedIndex
+        return deviceRepository.selectedIndex
             .map {
                 FlowResult.Success(it)
             }

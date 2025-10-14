@@ -1,7 +1,6 @@
 package com.glion.wol
 
 import android.app.Application
-import com.glion.crypto_module.ExternalAESUtils
 import dagger.hilt.android.HiltAndroidApp
 
 /**
@@ -16,8 +15,5 @@ import dagger.hilt.android.HiltAndroidApp
  */
 @HiltAndroidApp
 class WolApp : Application() {
-    override fun onCreate() {
-        super.onCreate()
-        ExternalAESUtils.init(this)
-    }
+
 }

@@ -1,5 +1,7 @@
 package com.glion.wol.data.api.datasource
 
+import com.glion.wol.data.api.data.RequestEncryptedCommon
+import com.glion.wol.data.api.data.RequestExchangeKey
 import com.glion.wol.data.api.data.ResponseCommon
 import com.glion.wol.data.api.data.ResponseEncryptedCommon
 
@@ -17,25 +19,20 @@ interface ApiDataSource {
     /**
      * RSA publicKey -> AESKey 교환
      */
-    suspend fun exchangeKey(rsaPublicKey: ByteArray) : ResponseEncryptedCommon
+    suspend fun exchangeKey(body: RequestExchangeKey) : ResponseEncryptedCommon
 
     /**
      * 토큰 얻기
      */
-    suspend fun getToken() : ResponseEncryptedCommon
-
-    /**
-     * 토큰 리프레시
-     */
-    suspend fun refreshToken() : ResponseEncryptedCommon
+    suspend fun getToken(body: RequestEncryptedCommon) : ResponseEncryptedCommon
 
     /**
      * 푸시 토큰 전송
      */
-    suspend fun sendPushToken(fcmToken: String) : ResponseCommon
+    suspend fun sendPushToken(body: RequestEncryptedCommon) : ResponseCommon
 
     /**
      * 기기 전원 켜기
      */
-    suspend fun startDevice(mac: String) : ResponseCommon
+    suspend fun startDevice(body: RequestEncryptedCommon) : ResponseCommon
 }

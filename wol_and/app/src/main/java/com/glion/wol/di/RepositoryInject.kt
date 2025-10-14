@@ -1,11 +1,13 @@
 package com.glion.wol.di
 
-import com.glion.wol.data.repository.CryptoRepositoryImpl
-import com.glion.wol.data.repository.LocalRepositoryImpl
-import com.glion.wol.data.repository.RemoteRepositoryImpl
-import com.glion.wol.domain.repository.CryptoRepository
-import com.glion.wol.domain.repository.LocalRepository
-import com.glion.wol.domain.repository.RemoteRepository
+import com.glion.wol.data.repository.AuthRepositoryImpl
+import com.glion.wol.data.repository.DeviceRepositoryImpl
+import com.glion.wol.data.repository.InitializeRepositoryImpl
+import com.glion.wol.data.repository.PushRepositoryImpl
+import com.glion.wol.domain.repository.AuthRepository
+import com.glion.wol.domain.repository.DeviceRepository
+import com.glion.wol.domain.repository.InitializeRepository
+import com.glion.wol.domain.repository.PushRepository
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
@@ -27,19 +29,25 @@ import javax.inject.Singleton
 abstract class RepositoryInjectModule {
     @Binds
     @Singleton
-    abstract fun bindsLocalRepository(
-        localRepositoryImpl: LocalRepositoryImpl
-    ) : LocalRepository
+    abstract fun bindAuthRepository(
+        authRepositoryImpl: AuthRepositoryImpl
+    ) : AuthRepository
 
     @Binds
     @Singleton
-    abstract fun bindRemoteRepository(
-        remoteRepositoryImpl: RemoteRepositoryImpl
-    ) : RemoteRepository
+    abstract fun bindInitializeRepository(
+        initializeRepositoryImpl: InitializeRepositoryImpl
+    ) : InitializeRepository
 
     @Binds
     @Singleton
-    abstract fun bindCryptoRepository(
-        cryptoRepositoryImpl: CryptoRepositoryImpl
-    ) : CryptoRepository
+    abstract fun bindDeviceRepository(
+        deviceRepositoryImpl: DeviceRepositoryImpl
+    ) : DeviceRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindPushRepository(
+        pushRepositoryImpl: PushRepositoryImpl
+    ) : PushRepository
 }

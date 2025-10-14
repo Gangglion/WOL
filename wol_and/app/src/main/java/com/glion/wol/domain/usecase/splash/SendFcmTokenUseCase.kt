@@ -1,7 +1,6 @@
 package com.glion.wol.domain.usecase.splash
 
-import com.glion.wol.domain.repository.LocalRepository
-import com.glion.wol.domain.repository.RemoteRepository
+import com.glion.wol.domain.repository.PushRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.map
@@ -18,14 +17,13 @@ import javax.inject.Inject
  * Copyright @2025 Gangglion. All rights reserved
  */
 class SendFcmTokenUseCase @Inject constructor(
-    private val localRepository: LocalRepository,
-    private val remoteRepository: RemoteRepository
+    private val pushRepository: PushRepository
 ) {
     operator fun invoke() : Flow<Unit> {
-        return localRepository.getFcmToken()
+        return pushRepository.getFcmToken()
             .filterNotNull()
             .map { fcmToken ->
-                val sendResult = remoteRepository.sendFcmToken(fcmToken)
+                val sendResult = pushRepository.sendFcmToken(fcmToken)
                 if(sendResult.result) {
                     Unit
                 } else {
