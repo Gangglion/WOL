@@ -7,6 +7,8 @@ import okhttp3.RequestBody.Companion.toRequestBody
 import java.io.FileInputStream
 import java.net.NetworkInterface
 import java.util.*
+import java.util.Locale
+import java.util.Locale.getDefault
 import kotlin.system.exitProcess
 
 fun main() {
@@ -49,20 +51,34 @@ fun main() {
  */
 private fun getMacAddress(): String? {
     try {
+        // 현재 실행 중인 운영체제의 이름을 가져옵니다 (소문자로 변환).
+        val osName = System.getProperty("os.name").lowercase(getDefault())
+
+        // 1. OS가 Linux인 경우 (NAS 환경)
+        if (osName.contains("linux")) {
+            println("Linux 환경 감지. 'eth0' 인터페이스를 찾습니다.")
+            val eth0 = NetworkInterface.getByName("eth0")
+            if (eth0 != null && eth0.hardwareAddress != null) {
+                // 'eth0'의 MAC 주소를 포맷에 맞게 변환하여 반환합니다.
+                return eth0.hardwareAddress.joinToString(":") { String.format("%02X", it) }
+            }
+        }
+
+        // 2. Windows 및 기타 OS인 경우 (기존 로직)
+        println("Windows 또는 기타 환경 감지. 첫 번째 활성 인터페이스를 찾습니다.")
         val interfaces = Collections.list(NetworkInterface.getNetworkInterfaces())
         for (intf in interfaces) {
-            if (!intf.isUp || intf.hardwareAddress == null) continue // 비활성화 또는 MAC 주소 없는 인터페이스는 건너뛰기
-
-            val macBytes = intf.hardwareAddress
-            val macString = StringBuilder()
-            for (i in macBytes.indices) {
-                macString.append(String.format("%02X%s", macBytes[i], if (i < macBytes.size - 1) ":" else ""))
+            // 활성화 상태이고, MAC 주소가 있는 첫 번째 인터페이스를 찾아 반환합니다.
+            if (intf.isUp && intf.hardwareAddress != null) {
+                return intf.hardwareAddress.joinToString(":") { String.format("%02X", it) }
             }
-            return macString.toString()
         }
+
     } catch (ex: Exception) {
-        // 오류 처리
+        println("MAC 주소 조회 중 오류가 발생했습니다: ${ex.message}")
     }
+
+    // 어떤 경우에도 MAC 주소를 찾지 못하면 null을 반환합니다.
     return null
 }
 
