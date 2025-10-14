@@ -60,6 +60,9 @@ android {
     packaging {
         resources {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
+            // mockK 추가로 인해 중복되는 파일 패키징 제외 처리
+            excludes += "META-INF/LICENSE.md"
+            excludes += "META-INF/LICENSE-notice.md"
         }
     }
 }
@@ -106,10 +109,11 @@ dependencies {
     implementation(platform(libs.firebase.bom))
     implementation(libs.firebase.analytics)
     implementation(libs.firebase.messaging)
-    implementation("com.google.accompanist:accompanist-permissions:0.37.3")
+    implementation(libs.accompanist.permissions)
 
     // test
     testImplementation(libs.junit)
+    androidTestImplementation(libs.mockk.android)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(platform(libs.androidx.compose.bom))

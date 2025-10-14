@@ -1,23 +1,30 @@
 package com.glion.wol
 
 import androidx.datastore.core.DataStore
-import androidx.datastore.dataStoreFile
 import androidx.datastore.preferences.core.PreferenceDataStoreFactory
 import androidx.datastore.preferences.core.Preferences
 import androidx.room.Room
 import androidx.test.platform.app.InstrumentationRegistry
+import com.glion.crypto_module.AESUtils
+import com.glion.crypto_module.RSAUtils
+import com.glion.wol.data.api.NeedHeaderWolService
+import com.glion.wol.data.api.NoHeaderWolService
+import com.glion.wol.data.api.datasource.ApiDataSourceImpl
+import com.glion.wol.data.crypto.dataSource.CryptoKeyDataSourceImpl
 import com.glion.wol.data.datastore.datasource.SettingDataSourceImpl
 import com.glion.wol.data.db.dao.DeviceDao
 import com.glion.wol.data.db.datasource.DbDataSourceImpl
-import com.glion.wol.data.repository.LocalRepositoryImpl
+import com.glion.wol.data.repository.DeviceRepositoryImpl
 import com.glion.wol.di.WolDatabase
 import com.glion.wol.domain.model.local.Device
+import com.glion.wol.domain.repository.DeviceRepository
+import io.mockk.impl.annotations.MockK
+import io.mockk.junit4.MockKRule
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest
 import org.junit.After
@@ -31,14 +38,14 @@ import org.junit.rules.TemporaryFolder
 /**
  * Project : WOL
  * File : RoomTest
- * Created by Gangglion on 2025-09-03
+ * Created by glion on 2025-09-03
  *
  * Description:
- * - Room Repository 테스트
+ * - DeviceRepository 테스트
  *
- * Copyright @2025 Glion. All rights reserved
+ * Copyright @2025 Gangglion. All rights reserved
  */
-class LocalRepositoryTest {
+class DeviceRepositoryTest {
     companion object {
         const val TEST_PREFS_FILE_NAME = "test_prefs.preferences_pb"
     }
@@ -47,11 +54,22 @@ class LocalRepositoryTest {
     @get:Rule
     val tempFolder = TemporaryFolder()
 
+    // JUnit4 Rule 을 사용하여 Mockk 초기화
+    @get:Rule
+    val mockRule = MockKRule(this)
+    // @MockK 어노테이션으로 mock 객체 생성
+    @MockK
+    lateinit var mockNoHeaderApi: NoHeaderWolService
+    @MockK
+    lateinit var mockNeedHeaderApi: NeedHeaderWolService
+
     private lateinit var db: WolDatabase
     private lateinit var deviceDao: DeviceDao
     private lateinit var roomDataSource: DbDataSourceImpl
     private lateinit var settingDataSource: SettingDataSourceImpl
-    private lateinit var localRepository: LocalRepositoryImpl
+    private lateinit var apiDataSource: ApiDataSourceImpl
+    private lateinit var cryptoKeyDataSource: CryptoKeyDataSourceImpl
+    private lateinit var deviceRepository: DeviceRepository
 
     // 테스트용 Coroutine Scope 변수 선언
     private lateinit var testScope: CoroutineScope
@@ -74,7 +92,9 @@ class LocalRepositoryTest {
         deviceDao = db.deviceDao()
         roomDataSource = DbDataSourceImpl(deviceDao)
         settingDataSource = SettingDataSourceImpl(testDataStore)
-        localRepository = LocalRepositoryImpl(roomDataSource, settingDataSource)
+        apiDataSource = ApiDataSourceImpl(mockNoHeaderApi, mockNeedHeaderApi)
+        cryptoKeyDataSource = CryptoKeyDataSourceImpl(context, RSAUtils())
+        deviceRepository = DeviceRepositoryImpl(roomDataSource, apiDataSource, settingDataSource, cryptoKeyDataSource, AESUtils())
     }
 
     @After
@@ -94,8 +114,8 @@ class LocalRepositoryTest {
             alias = "Test",
             isPowerOn = false
         )
-        localRepository.insertDevice(device)
-        val loaded = localRepository.getAllDevice().first()
+        deviceRepository.insertDevice(device)
+        val loaded = deviceRepository.getAllDevice().first()
         assertEquals(1, loaded.size)
         assertEquals("Test", loaded[0].alias)
         assertEquals("Test:Mac:Addr", loaded[0].mac)
@@ -112,20 +132,20 @@ class LocalRepositoryTest {
             alias = "Test",
             isPowerOn = false
         )
-        localRepository.insertDevice(device)
-        val loaded = localRepository.getAllDevice().first()
+        deviceRepository.insertDevice(device)
+        val loaded = deviceRepository.getAllDevice().first()
 
         // isPowerOn 변경
-        localRepository.changePowerStatus(loaded[0].mac, true)
+        deviceRepository.changePowerStatus(loaded[0].mac, true)
 
         // mac 주소 변경
-        localRepository.changeMacAddr(loaded[0].id, "Change:Mac:Addr")
+        deviceRepository.changeMacAddr(loaded[0].id, "Change:Mac:Addr")
 
         // alias 변경
-        localRepository.changeAlias(loaded[0].id, "Change")
+        deviceRepository.changeAlias(loaded[0].id, "Change")
 
         // 변경된 상태 검증
-        val loadedAfterChange = localRepository.getAllDevice().first()
+        val loadedAfterChange = deviceRepository.getAllDevice().first()
         assertEquals(1, loadedAfterChange.size)
         assertEquals("Change", loadedAfterChange[0].alias)
         assertEquals("Change:Mac:Addr", loadedAfterChange[0].mac)
@@ -143,15 +163,15 @@ class LocalRepositoryTest {
             isPowerOn = false
         )
         // 데이터 Insert
-        localRepository.insertDevice(device)
+        deviceRepository.insertDevice(device)
         // Insert 후 데이터 조회
-        val loadedBeforeDelete = localRepository.getAllDevice().first()
+        val loadedBeforeDelete = deviceRepository.getAllDevice().first()
         assertEquals(1, loadedBeforeDelete.size)
         // Data 삭제
-        val delete = localRepository.deleteDevice(loadedBeforeDelete[0])
+        val delete = deviceRepository.deleteDevice(loadedBeforeDelete[0])
         assertTrue(delete)
         // 삭제 후 DB 확인
-        val loadAfterDelete = localRepository.getAllDevice().first() // 삭제 후 DB
+        val loadAfterDelete = deviceRepository.getAllDevice().first() // 삭제 후 DB
         assertEquals(0, loadAfterDelete.size)
     }
 
@@ -160,7 +180,7 @@ class LocalRepositoryTest {
      */
     @Test
     fun getSelectedIndex_assertEquals() = runTest {
-        val selectedIndex = localRepository.selectedIndex.first()
+        val selectedIndex = deviceRepository.selectedIndex.first()
         assertEquals(0L, selectedIndex)
     }
 
@@ -169,8 +189,8 @@ class LocalRepositoryTest {
      */
     @Test
     fun editSelectedIndex_assertEquals() = runTest {
-        localRepository.editSelectedIndex(5)
-        val selectedIndex = localRepository.selectedIndex.first()
+        deviceRepository.editSelectedIndex(5)
+        val selectedIndex = deviceRepository.selectedIndex.first()
         assertEquals(5L, selectedIndex)
     }
 }
