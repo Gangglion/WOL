@@ -34,6 +34,7 @@ RSA / AES 하이브리드 암호화 구조를 적용한 안전한 홈 네트워�
 | Infra   | NAS (Synology, Docker Container)              |
 
 ### 📱 Android (Android Native)
+* [Android Project README 보기](https://github.com/Gangglion/WOL/blob/develop/wol_and/README.md)
 * Kotlin + Clean Architecture 기반 MVVM 구조
 * Jetpack Compose 로 UI 구성
 * Room DB + DataStore 로 로컬 데이터 저장
@@ -44,6 +45,7 @@ RSA / AES 하이브리드 암호화 구조를 적용한 안전한 홈 네트워�
   * encrypt / decrypt / key generation 기능 중심의 경량 모듈로, 재사용성과 프로젝트 간 확장성을 고려하여 분리 설계
 
 ### 🖥️ Server (Ktor)
+* [WOL Ktor 서버 README 보기](https://github.com/Gangglion/WOL/blob/develop/wol_server/README.md)
 * 클라이언트 요청 수신 -> WOL 패킷 전송
 * RSA/AES 하이브리드 암호화로 안전한 데이터 송수신
 * JWT 기반 사용자 인증 및 토큰 발급
