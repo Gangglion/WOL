@@ -4,15 +4,19 @@ import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.RequestBody.Companion.toRequestBody
-import java.io.FileInputStream
 import java.net.NetworkInterface
 import java.util.*
-import java.util.Locale
 import java.util.Locale.getDefault
 import kotlin.system.exitProcess
 
-fun main() {
+fun main(args: Array<String>) {
     println("프로그램을 시작합니다...")
+
+    if(args.isEmpty()) {
+        println("요청을 보낼 URL 이 없습니다. 프로그램을 종료합니다.")
+        exitProcess(1)
+    }
+    val apiUrl = args[0]
 
     try {
         // 1. 실행 시 내 MAC 주소 구하기
@@ -23,11 +27,11 @@ fun main() {
             exitProcess(1) // 오류 코드(1)와 함께 종료
         }
 
-        println("MAC 주소를 찾았습니다: $macAddress")
+        println("MAC 주소를 찾았습니다")
 
         // 2. API 호출하기
         println("API 서버로 데이터를 전송합니다...")
-        val success = sendMacAddressToServer(macAddress)
+        val success = sendMacAddressToServer(apiUrl, macAddress)
 
         if (success) {
             println("API 호출에 성공했습니다.")
@@ -83,34 +87,19 @@ private fun getMacAddress(): String? {
 }
 
 /**
- * MAC 주소를 API 서버로 전송합니다.
+ * MAC 주소를 API 서버로 전송합니다
+ * @param apiUrl API 주소
+ * @param macAddress 보낼 맥 주소
  * @return 성공 시 true, 실패 시 false
  */
-private fun sendMacAddressToServer(macAddress: String): Boolean {
+private fun sendMacAddressToServer(apiUrl: String, macAddress: String): Boolean {
     return try {
-        val properties = Properties()
-        val classLoader = Thread.currentThread().contextClassLoader
-        val inputStream = classLoader.getResourceAsStream("local.properties")
-
-        inputStream.use { stream ->
-            if(stream == null) {
-                println("오류 : JAR 파일 내에서 local.properties 를 찾을 수 없습니다.")
-                return false
-            }
-            properties.load(stream)
-        }
-        val url = properties.getProperty("API_URL")
-        if(url.isNullOrEmpty()) {
-            println("오류 : local.properties 파일에 API_URL 이 비어있습니다.")
-            return false
-        }
-
         val client = OkHttpClient()
         val json = """{"mac": "$macAddress", "status" : "On"}"""
         val requestBody = json.toRequestBody("application/json; charset=utf-8".toMediaType())
 
         val request = Request.Builder()
-            .url(url)
+            .url(apiUrl)
             .post(requestBody)
             .build()
 
