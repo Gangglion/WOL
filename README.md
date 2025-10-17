@@ -54,6 +54,7 @@ RSA / AES 하이브리드 암호화 구조를 적용한 안전한 홈 네트워�
 * Docker Container 환경에서 NAS 위에 지속적으로 구동
 
 ### 💻 Device Client (Kotlin Application)
+* [Device Client README 보기](https://github.com/Gangglion/WOL/blob/develop/wol_jar/README.md)
 * JAR 형태의 실행 애플리케이션, 전원을 제어할 장비에서 직접 실행
 * Windows 작업 스케쥴러 / Synology 스케쥴러에 등록 가능
 * 장치 상태(전원 ON/OFF)를 감지하여 서버로 Push 요청 전송
