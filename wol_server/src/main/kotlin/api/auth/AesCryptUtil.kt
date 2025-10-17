@@ -1,5 +1,6 @@
 package com.glion.api.auth
 
+import com.glion.Config
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import java.io.File
@@ -12,7 +13,6 @@ import javax.crypto.spec.GCMParameterSpec
 import javax.crypto.spec.SecretKeySpec
 
 object AesCryptUtil {
-    private const val PATH = "/home/devglion/key/aesKey"
     private const val AESTransformation = "AES/GCM/NoPadding"
 
     var key: ByteArray? = null
@@ -33,7 +33,7 @@ object AesCryptUtil {
      * 해당 경로에 키 파일 존재하는지 확인
      */
     fun isExistKeyFile(): Boolean {
-        val file = File(PATH)
+        val file = File(Config.aesKeyPath)
         return file.exists()
     }
 
@@ -62,7 +62,7 @@ object AesCryptUtil {
      * 생성한 AesKey 파일에 저장.
      */
     fun saveAesKeyInShared(key: ByteArray) {
-        val file = File(PATH)
+        val file = File(Config.aesKeyPath)
         val parentDir = file.parentFile
         if(parentDir != null && !parentDir.exists()) {
             parentDir.mkdirs()
@@ -76,7 +76,7 @@ object AesCryptUtil {
      * 저장된 AesKey 파일 가져와 aesKey 에 저장
      */
     fun loadAesKey() {
-        val file = File(PATH)
+        val file = File(Config.aesKeyPath)
         try {
             if(!file.exists()) throw Exception("AesKey 파일이 존재하지 않습니다.")
             file.inputStream().use { input ->

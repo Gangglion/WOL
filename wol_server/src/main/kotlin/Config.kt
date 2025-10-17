@@ -10,4 +10,8 @@ object Config {
 
     val jwtSecret = dotenv["JWT_SECRET"] ?: ""
     val appKey = dotenv["APP_KEY"] ?: ""
+
+    val rsaKeyPath = dotenv["RSA_KEY_PATH"] ?: ""
+    val aesKeyPath = dotenv["AES_KEY_PATH"] ?: ""
+    val fcmKeyPath = dotenv["FCM_KEY_PATH"] ?: ""
 }

@@ -1,5 +1,6 @@
 package com.glion.api.fcm
 
+import com.glion.Config
 import com.glion.api.auth.AesCryptUtil
 import com.glion.extension.toEncodeB64
 import com.google.firebase.messaging.FirebaseMessaging
@@ -7,8 +8,6 @@ import com.google.firebase.messaging.Message
 import java.io.File
 
 object FCMUtils {
-    private const val PATH =  "/home/devglion/key/fcmToken"
-
     var fcmToken: String? = null
         private set
 
@@ -21,7 +20,7 @@ object FCMUtils {
      * 해당 경로에 토큰 파일 존재하는지 확인
      */
     fun isExistTokenFile() : Boolean {
-        val file = File(PATH)
+        val file = File(Config.fcmKeyPath)
         return file.exists()
     }
 
@@ -29,7 +28,7 @@ object FCMUtils {
      * FCM 토큰 파일에서 값 가져와 리턴
      */
     fun loadFcmToken(): String {
-        val file = File(PATH)
+        val file = File(Config.fcmKeyPath)
         return file.readText(Charsets.UTF_8)
     }
 
@@ -38,7 +37,7 @@ object FCMUtils {
      */
     fun setFcmToken(newToken: String) {
         fcmToken = newToken
-        val file = File(PATH)
+        val file = File(Config.fcmKeyPath)
         val parentDir = file.parentFile
         if(parentDir != null && !parentDir.exists()) {
             parentDir.mkdirs()

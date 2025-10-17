@@ -1,5 +1,6 @@
 package com.glion.api.auth
 
+import com.glion.Config
 import java.io.File
 import java.nio.file.Files
 import java.nio.file.Paths
@@ -8,15 +9,14 @@ import java.security.spec.X509EncodedKeySpec
 import javax.crypto.Cipher
 
 object RsaCryptoUtil {
-    private const val PATH = "/home/devglion/key/rsaPublicKey"
     private const val RSATransformation = "RSA/ECB/PKCS1Padding"
 
     fun saveRsaPublicKey(rsaPublicKey: ByteArray) {
-        val path = Paths.get(PATH)
+        val path = Paths.get(Config.rsaKeyPath)
         Files.write(path, rsaPublicKey)
     }
 
-    private fun isExistRsaKey() : Boolean = File(PATH).exists()
+    private fun isExistRsaKey() : Boolean = File(Config.rsaKeyPath).exists()
 
     /**
      * 저장된 RSA 공개키를 사용하여 암호화
@@ -25,7 +25,7 @@ object RsaCryptoUtil {
         if(!isExistRsaKey()) {
             throw Exception("RSA 키가 없습니다!")
         }
-        val keyBytes = Files.readAllBytes(Paths.get(PATH))
+        val keyBytes = Files.readAllBytes(Paths.get(Config.rsaKeyPath))
         val spec = X509EncodedKeySpec(keyBytes)
         val key = KeyFactory.getInstance("RSA").generatePublic(spec)
 
